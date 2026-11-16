@@ -742,3 +742,7 @@ html[lang="hi"] .story p{font-size:clamp(14px,1.45vw,18px)!important}
 html[lang="hi"] .mean:before{content:"युग";font-weight:600;letter-spacing:0}
 html[lang="hi"] .mean:after{content:"अस्त्र";font-weight:600;letter-spacing:0}
 .mean{content-visibility:visible!important;contain:none!important}.mean:before{left:-6%}.mean:after{right:-6%}
+/* watermark is always in Hindi, on both the English and Hindi sites */
+.mean:before{content:"युग"!important}
+.mean:after{content:"अस्त्र"!important}
+.mean:before,.mean:after{font-family:var(--font-deva),'Noto Sans Devanagari',var(--f-head),sans-serif;font-weight:700;letter-spacing:0;line-height:1}
