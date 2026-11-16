@@ -14,7 +14,7 @@ export default async function Collection({ params }) {
   const posts = await getPosts({ realm: c.theme });
   return (
     <div className="page">
-      {c.wide_banner && <div className="wide-banner"><img src={c.wide_banner} alt={c.name} /></div>}
+      {c.wide_banner && <div className="wide-banner"><img loading="lazy" decoding="async" src={c.wide_banner} alt={c.name} /></div>}
       <div className="wrap">
       <div className="crumbs"><Link href="/">{t('Home')}</Link> / <Link href="/collections">{t('Watches')}</Link> / {c.name}</div>
       <div className="eyebrow">{REALMS[c.theme] ? t(REALMS[c.theme].realm) : c.headline || c.tagline}</div><h1 style={{ marginTop: 10 }}>{c.name}</h1>

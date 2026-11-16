@@ -5,7 +5,7 @@ Create an empty repository, upload everything in this folder (or `git init && gi
 
 ## 2. Supabase (database, login, images)
 1. Create a project at supabase.com.
-2. SQL Editor, run in this order: `supabase/schema.sql`, then `supabase/seed.sql`, then `supabase/hindi-update.sql`, then `supabase/journal-waitlist.sql`. (`copy-update.sql` and `home-copy-update.sql` only if you want the latest copy text.)
+2. SQL Editor, run in this order: `supabase/schema.sql`, then `supabase/seed.sql`, then `supabase/hindi-update.sql`, then `supabase/journal-waitlist.sql`, then `supabase/products-seed.sql` (all 20 watches and 5 collections with every field, ₹3,999 / compare-at ₹5,999; re-runnable). (`copy-update.sql` and `home-copy-update.sql` only if you want the latest copy text.)
 3. Authentication: create your admin user, then add it to the `admins` table with `is_owner = true`.
 4. Copy the project URL, anon key and service-role key into the environment variables below.
 

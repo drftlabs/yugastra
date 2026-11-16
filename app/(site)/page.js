@@ -39,7 +39,7 @@ export default async function Home() {
 
       {collections.map((c, i) => (
         <section key={c.id} className={`feat t-${c.theme} ${i % 2 ? 'rev' : ''}`}>
-          <div className={`feat-art ${(c.banner || imgs[`realm_${c.theme}`]) ? '' : 'orbwrap'}`}>{(c.banner || imgs[`realm_${c.theme}`]) ? <img src={imgs[`realm_${c.theme}`]?.image || c.banner} alt={c.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} /> : <><OrbScene theme={c.theme} /><Dial theme={c.theme} /></>}</div>
+          <div className={`feat-art ${(c.banner || imgs[`realm_${c.theme}`]) ? '' : 'orbwrap'}`}>{(c.banner || imgs[`realm_${c.theme}`]) ? <img loading="lazy" decoding="async" src={imgs[`realm_${c.theme}`]?.image || c.banner} alt={c.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} /> : <><OrbScene theme={c.theme} /><Dial theme={c.theme} /></>}</div>
           <div className="feat-copy" data-rv>
             <div className="eyebrow">{REALMS[c.theme] ? t(REALMS[c.theme].realm) : `${c.name} ${t('collection')}`}</div>
             <h2 className="fc-name">{c.name}{(c.sanskrit || SKT[c.theme]) && <span className="hi-sub">{c.sanskrit || SKT[c.theme]}</span>}</h2>
