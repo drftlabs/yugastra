@@ -1,0 +1,38 @@
+import Link from '@/components/L';
+import { notFound } from 'next/navigation';
+import { shippingCfg } from '@/lib/pricing';
+import PdpClient from '@/components/PdpClient';
+import NameNote from '@/components/NameNote';
+import { REALMS } from '@/lib/brand';
+import { cookies } from 'next/headers';
+import { getLang } from '@/lib/lang';
+import { tr } from '@/lib/i18n';
+import { getSiteImages, getProduct, getProducts, getCollections, getReviews, getSettings, inr } from '@/lib/data';
+export async function generateMetadata({ params }) {
+  const p = await getProduct(params.slug);
+  return { title: p?.seo_title ? { absolute: p.seo_title } : (p?.name || 'Watch'), description: p?.seo_description || p?.description || p?.tagline };
+}
+export default async function Product({ params }) {
+  const t = tr(getLang());
+  const p = await getProduct(params.slug); if (!p) notFound();
+  const [cols, reviews, settings] = await Promise.all([getCollections(), getReviews(p.id), getSettings()]);
+  const col = cols.find((c) => c.id === p.collection_id); const theme = col?.theme || 'dhruv';
+  const siblings = col ? await getProducts({ collectionId: col.id }) : [];
+  const imgs = await getSiteImages();
+  const items = siblings.length ? siblings : [p];
+  const save = p.compare_price && p.compare_price > p.price ? Math.round((1 - p.price / p.compare_price) * 100) : 0;
+  const feats = Array.isArray(p.features) ? p.features : [];
+  return (
+    <div className="page pdp-page"><div className="wrap">
+      <PdpClient items={items} startSlug={p.slug} theme={theme} eyebrow={col ? `${col.name} · ${REALMS[theme] ? t(REALMS[theme].realm) : t('collection')}` : ''} settings={{ return_days: settings.return_days, delivery_days: settings.delivery_days }} whatsapp={settings.whatsapp} wristPhotos={[imgs.wrist_small?.image, imgs.wrist_large?.image].filter(Boolean)} col={col ? { name: col.name, sanskrit: col.sanskrit, meaning: col.meaning, story: col.story } : null} realm={REALMS[theme] || null} box={imgs.box_photo?.image || '/box.jpg'} handPhoto={imgs.pdp_hand?.image || ''} showGlow={col?.show_glow !== false} checkout={{ cfg: shippingCfg(settings), rzpReady: !!process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID, waEnabled: !!process.env.NEXT_PUBLIC_WA_CONFIRM, deliveryDays: settings.delivery_days }} unlockedSlugs={items.filter((x) => cookies().get(`yg_ac_${x.slug}`)).map((x) => x.slug)} />
+
+      {!!reviews.length && (
+        <div style={{ marginTop: 90 }}><div className="sec-head"><h2>{t('Reviews')}</h2></div>
+          <div className="grid3">{reviews.map((r) => <div key={r.id} className="box"><div className="price">{'★'.repeat(r.rating)}</div><p style={{ margin: '10px 0', color: '#cfc9bc' }}>{r.body}</p><small style={{ color: 'var(--muted)' }}>{r.name}</small></div>)}</div>
+        </div>
+      )}
+      <NameNote compact />
+
+    </div></div>
+  );
+}
