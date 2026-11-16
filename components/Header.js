@@ -24,7 +24,7 @@ export default function Header({ collections = [] }) {
           <div className="nav-item"><button>{t('Support')}</button>
             <div className="mega"><Link href="/track">{t('Track order')}</Link><Link href="/contact">{t('Contact')}</Link><Link href="/complaint">{t('Raise a complaint')}</Link></div></div>
         </nav></div>
-        <Link href="/" className="logo" aria-label="YUGASTRA home"><img src="/logo.png" alt="YUGASTRA" /></Link>
+        <Link href="/" className="logo" aria-label="YUGASTRA home"><img loading="lazy" decoding="async" src="/logo.png" alt="YUGASTRA" /></Link>
         <div className="hdr-actions">
           <LangSwitch />
           <Link href="/account" className="icon-btn" aria-label="Account"><User /></Link>

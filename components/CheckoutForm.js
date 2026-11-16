@@ -96,7 +96,7 @@ export default function CheckoutForm({ cfg, rzpReady, waEnabled, deliveryDays })
           </>)}
         </div>
         <div className="box" style={{ position: 'sticky', top: 100 }}>
-          {items.map((i) => <div className="ci" key={i.id}><div className="th">{i.image ? <img src={i.image} alt="" /> : <Dial theme={i.theme} />}</div><div><div style={{ fontFamily: 'var(--f-head)', letterSpacing: '.1em', textTransform: 'uppercase', fontSize: 13 }}>{i.name}</div><small style={{ color: 'var(--muted)' }}>{t('Qty')} {i.qty}</small></div><div className="price">{inr(i.price * i.qty)}</div></div>)}
+          {items.map((i) => <div className="ci" key={i.id}><div className="th">{i.image ? <img loading="lazy" decoding="async" src={i.image} alt="" /> : <Dial theme={i.theme} />}</div><div><div style={{ fontFamily: 'var(--f-head)', letterSpacing: '.1em', textTransform: 'uppercase', fontSize: 13 }}>{i.name}</div><small style={{ color: 'var(--muted)' }}>{t('Qty')} {i.qty}</small></div><div className="price">{inr(i.price * i.qty)}</div></div>)}
           <div style={{ display: 'flex', gap: 8, margin: '16px 0 4px' }}><input className="inp" placeholder={t('Discount code')} value={code} onChange={(e) => setCode(e.target.value)} /><button type="button" className="btn sm" onClick={applyCode}>{t('Apply')}</button></div>
           {dmsg && <div className={disc.amount ? 'ok' : 'err'}>{dmsg}</div>}
           <div className="row"><span>{t('Subtotal')}</span><span>{inr(pr.subtotal)}</span></div>

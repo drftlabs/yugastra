@@ -15,7 +15,7 @@ export default function CartDrawer({ freeMin = 0 }) {
           {!items.length && <p style={{ color: 'var(--muted)', padding: '40px 0', textAlign: 'center' }}>{t('Your bag is empty.')}</p>}
           {items.map((i) => (
             <div className="ci" key={i.id}>
-              <div className="th">{i.image ? <img src={i.image} alt="" /> : <Dial theme={i.theme} />}</div>
+              <div className="th">{i.image ? <img loading="lazy" decoding="async" src={i.image} alt="" /> : <Dial theme={i.theme} />}</div>
               <div>
                 <Link href={`/products/${i.slug}`} onClick={() => setOpen(false)} style={{ fontFamily: 'var(--f-head)', letterSpacing: '.1em', textTransform: 'uppercase', fontSize: 13 }}>{i.name}</Link>
                 <div className="qty"><button onClick={() => setQty(i.id, i.qty - 1)}>−</button><span>{i.qty}</span><button onClick={() => setQty(i.id, i.qty + 1)}>+</button></div>

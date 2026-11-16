@@ -9,7 +9,7 @@ export default function DetailGallery({ items = DEFAULT }) {
       <div className="gal-grid">
         {items.map((it, i) => (
           <figure key={i} className={`gal-f g${i}`}>
-            {it.image ? <img src={it.image} alt={t(it.caption) || ''} /> : <div className="gal-ph"><span>{t('Image to come')}</span></div>}
+            {it.image ? <img loading="lazy" decoding="async" src={it.image} alt={t(it.caption) || ''} /> : <div className="gal-ph"><span>{t('Image to come')}</span></div>}
             {it.caption && <figcaption>{t(it.caption)}</figcaption>}
           </figure>
         ))}

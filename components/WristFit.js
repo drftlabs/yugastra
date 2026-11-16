@@ -30,7 +30,7 @@ export default function WristFit({ theme, caseColor, strap, photos = [] }) {
             <div><span>{t('Medium wrist · 15–18 cm')}</span><span>{t('Balanced fit')}</span></div>
             <div><span>{t('Large wrist · 18–20 cm')}</span><span>{t('Refined fit')}</span></div>
           </div>
-          {photos.length > 0 && <div className="wrist-ph">{photos.map((s) => <img key={s} src={s} alt="On the wrist" />)}</div>}
+          {photos.length > 0 && <div className="wrist-ph">{photos.map((s) => <img loading="lazy" decoding="async" key={s} src={s} alt="On the wrist" />)}</div>}
         </div>
       </div>
     </section>
