@@ -1,0 +1,1 @@
+export default function Preview() { return <div className="box"><b>Preview mode.</b> <span style={{ color: 'var(--muted)' }}>Add your Supabase keys in <code>.env.local</code> and run <code>supabase/schema.sql</code> to enable this screen.</span></div>; }
