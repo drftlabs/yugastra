@@ -733,3 +733,12 @@ html[lang="hi"] .story p{font-size:clamp(14px,1.45vw,18px)!important}
 .mega{left:0!important;transform:translateY(8px)!important}
 .nav-item:hover .mega{transform:translateY(0)!important}
 .nav-item:last-child .mega{left:auto!important;right:0}
+
+/* ---------- v12: YUG / ASTRA watermark behind the product description ---------- */
+.mean{position:relative;isolation:isolate}
+.mean:before,.mean:after{position:absolute;z-index:-1;pointer-events:none;font-family:var(--f-head);font-weight:700;line-height:.9;letter-spacing:.04em;color:rgba(255,255,255,.2);filter:blur(5px);font-size:clamp(84px,17vw,170px)}
+.mean:before{content:"YUG";left:-2%;top:2%}
+.mean:after{content:"ASTRA";right:-2%;bottom:2%}
+html[lang="hi"] .mean:before{content:"युग";font-weight:600;letter-spacing:0}
+html[lang="hi"] .mean:after{content:"अस्त्र";font-weight:600;letter-spacing:0}
+.mean{content-visibility:visible!important;contain:none!important}.mean:before{left:-6%}.mean:after{right:-6%}
