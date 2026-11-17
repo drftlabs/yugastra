@@ -1,11 +1,14 @@
 'use client';
 import { useEffect, useRef, useState } from 'react';
 import Dial from '@/components/Dial';
-import OrbScene from '@/components/OrbScene';
+import { opt } from '@/lib/img';
+import Sparkles from '@/components/Sparkles';
+import { useT } from '@/components/L';
 // Auto-sliding gallery: 5 s per photo, swipe to move, loops. Transparent PNGs sit on the realm glow.
 // Zoom works only on the photo: double-tap / double-click, or pinch.
-const MS = 5000;
-export default function PdpGallery({ images = [], box = '', theme, name, caseColor = 'Silver', strap = '', video = '', showGlow = true }) {
+const MS = 3850; // 30% faster than the earlier 5 s
+export default function PdpGallery({ images = [], box = '', theme, name, caseColor = 'Silver', strap = '', video = '', showGlow = true, hindiLine = '' }) {
+  const t = useT();
   const slides = [...images.map((s) => ({ t: 'img', s })), ...(video ? [{ t: 'vid', s: video }] : []), ...(box ? [{ t: 'img', s: box }] : [])];
   const n = slides.length;
   const [i, setI] = useState(0);
@@ -47,7 +50,8 @@ export default function PdpGallery({ images = [], box = '', theme, name, caseCol
   return (
     <div className="pdp-gal">
       <div className={`main ${n ? 'zoomable has-img' : 'floor'}`}>
-        {showGlow && <OrbScene theme={theme} />}
+        {showGlow && <><div className={`pglow t-${theme}`} aria-hidden="true" /><Sparkles theme={theme} n={16} /></>}
+        {hindiLine && <div className="hline" aria-hidden="true">{hindiLine}</div>}
         {n ? (
           <div className="gal-view" style={{ touchAction: zoomed ? 'none' : 'pan-y' }} onPointerDown={down} onPointerMove={moveP} onPointerUp={up} onPointerCancel={up}>
             <div className="gal-track" style={{ transform: `translateX(calc(${-i * 100}% + ${zoomed ? 0 : drag}px))`, transition: drag ? 'none' : undefined }}>
@@ -55,12 +59,15 @@ export default function PdpGallery({ images = [], box = '', theme, name, caseCol
                 <div className="gal-slide" key={k}>
                   {x.t === 'vid'
                     ? <video src={x.s} controls playsInline muted loop className="pdp-media" />
-                    : <img className="pdp-media" src={x.s} alt={name} draggable="false" style={k === i ? { transform: `translate(${z.x}px,${z.y}px) scale(${z.s})`, transition: drag || zoomed ? 'none' : undefined } : undefined} />}
+                    : <img className="pdp-media" src={opt(x.s, 1080, 85)} alt={name} draggable="false" loading={k <= i + 1 ? 'eager' : 'lazy'} decoding="async" fetchPriority={k === 0 ? 'high' : 'auto'} style={k === i ? { transform: `translate(${z.x}px,${z.y}px) scale(${z.s})`, transition: drag || zoomed ? 'none' : undefined } : undefined} />}
                 </div>
               ))}
             </div>
           </div>
         ) : <div className="pdp-watch" key={`${caseColor}-${strap}`}><Dial theme={theme} caseColor={caseColor} strap={strap} /></div>}
+        {n > 0 && <button type="button" className="zoom-btn" onClick={() => setZ(zoomed ? { s: 1, x: 0, y: 0 } : { s: 2.2, x: 0, y: 0 })} aria-label={zoomed ? t('Zoom out') : t('Zoom in')}>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round"><circle cx="10.5" cy="10.5" r="6.5" /><path d="M20 20l-4.8-4.8M10.5 7.5v6M7.5 10.5h6" style={{ display: zoomed ? 'none' : 'inline' }} /><path d="M7.5 10.5h6" style={{ display: zoomed ? 'inline' : 'none' }} /></svg>
+        </button>}
       </div>
       {n > 1 && <div className="gal-dots">{slides.map((x, k) => <button key={k} className={k === i ? 'on' : ''} onClick={() => setI(k)} aria-label={`Photo ${k + 1}`} />)}</div>}
     </div>

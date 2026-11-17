@@ -1,12 +1,13 @@
 import Link from '@/components/L';
 import Dial from '@/components/Dial';
-import HeroSlider from '@/components/HeroSlider';
+import HeroVideo from '@/components/HeroVideo';
 import NameNote from '@/components/NameNote';
 import RealmQuiz from '@/components/RealmQuiz';
 import DetailGallery from '@/components/DetailGallery';
 import OrbScene from '@/components/OrbScene';
+import ProdRow from '@/components/ProdRow';
 import { REALMS, SKT } from '@/lib/brand';
-import { getSiteImages, getSlides, getSettings, getCollections } from '@/lib/data';
+import { getSiteImages, getSlides, getSettings, getCollections, getProducts } from '@/lib/data';
 import { getLang } from '@/lib/lang';
 import { tr } from '@/lib/i18n';
 
@@ -22,23 +23,21 @@ export default async function Home() {
   const [allSlides, collections, settings] = await Promise.all([getSlides(), getCollections(), getSettings()]);
   const multi = settings.hero_multi === true || settings.hero_multi === 'true' || settings.hero_multi === 'yes';
   const imgs = await getSiteImages();
+  const allP = await getProducts();
+  const tagged = allP.filter((x) => (x.tags || []).length).slice(0, 8).map((x) => ({ slug: x.slug, name: x.name, price: x.price, image: x.images?.[2] || x.images?.[0] || '', tags: x.tags }));
   const detail = [1, 2, 3, 4].map((n, i) => ({ caption: imgs[`detail_${n}`]?.caption || ['The embossed dial', 'The case, in light', 'The strap', 'On the wrist'][i], image: imgs[`detail_${n}`]?.image }));
   let slides = multi ? allSlides : allSlides.slice(0, 1);
   if (imgs.hero_image && slides[0]) slides = [{ ...slides[0], image: imgs.hero_image.image }, ...slides.slice(1)];
   const sk = Object.fromEntries(collections.map((c) => [c.theme, c.sanskrit || SKT[c.theme]]));
   return (
     <>
-      <HeroSlider slides={slides} sanskrit={sk} />
+      <HeroVideo />
 
       <NameNote />
 
-      <section className="story" data-rv>
-        <p>{t('Long before there were clocks, there were people who read time in the sky. They watched a star that never moved, a sun that rose in twelve forms, and a moon that walked through twenty-seven resting places.')}</p>
-        <p>{t('We are a small company in India that never stopped looking up. Each YUGASTRA begins with one of those ideas, drawn by hand, raised into the dial, and set in a case made to be held for years.')}</p>
-      </section>
-
       {collections.map((c, i) => (
         <section key={c.id} className={`feat t-${c.theme} ${i % 2 ? 'rev' : ''}`}>
+          <Link href={`/collections/${c.slug}`} className="feat-hit" aria-label={c.name} />
           <div className={`feat-art ${(c.banner || imgs[`realm_${c.theme}`]) ? '' : 'orbwrap'}`}>{(c.banner || imgs[`realm_${c.theme}`]) ? <img loading="lazy" decoding="async" src={imgs[`realm_${c.theme}`]?.image || c.banner} alt={c.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} /> : <><OrbScene theme={c.theme} /><Dial theme={c.theme} /></>}</div>
           <div className="feat-copy" data-rv>
             <div className="eyebrow">{REALMS[c.theme] ? t(REALMS[c.theme].realm) : `${c.name} ${t('collection')}`}</div>
@@ -49,6 +48,8 @@ export default async function Home() {
           </div>
         </section>
       ))}
+
+      <div className="wrap"><ProdRow title={t('New & bestsellers')} items={tagged} /></div>
 
       <RealmQuiz collections={collections} />
 

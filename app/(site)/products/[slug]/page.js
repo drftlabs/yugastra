@@ -19,12 +19,15 @@ export default async function Product({ params }) {
   const col = cols.find((c) => c.id === p.collection_id); const theme = col?.theme || 'dhruv';
   const siblings = col ? await getProducts({ collectionId: col.id }) : [];
   const imgs = await getSiteImages();
+  const all = await getProducts();
+  const colName = Object.fromEntries(cols.map((c) => [c.id, c.name]));
+  const catalog = all.map((x) => ({ slug: x.slug, name: x.name, price: x.price, image: x.images?.[2] || x.images?.[0] || '', tags: x.tags || [], col: colName[x.collection_id] || '' }));
   const items = siblings.length ? siblings : [p];
   const save = p.compare_price && p.compare_price > p.price ? Math.round((1 - p.price / p.compare_price) * 100) : 0;
   const feats = Array.isArray(p.features) ? p.features : [];
   return (
     <div className="page pdp-page"><div className="wrap">
-      <PdpClient items={items} startSlug={p.slug} theme={theme} eyebrow={col ? `${col.name} · ${REALMS[theme] ? t(REALMS[theme].realm) : t('collection')}` : ''} settings={{ return_days: settings.return_days, delivery_days: settings.delivery_days }} whatsapp={settings.whatsapp} wristPhotos={[imgs.wrist_small?.image, imgs.wrist_large?.image].filter(Boolean)} col={col ? { name: col.name, sanskrit: col.sanskrit, meaning: col.meaning, story: col.story } : null} realm={REALMS[theme] || null} box={imgs.box_photo?.image || '/box.jpg'} handPhoto={imgs.pdp_hand?.image || ''} showGlow={col?.show_glow !== false} checkout={{ cfg: shippingCfg(settings), rzpReady: !!process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID, waEnabled: !!process.env.NEXT_PUBLIC_WA_CONFIRM, deliveryDays: settings.delivery_days }} unlockedSlugs={items.filter((x) => cookies().get(`yg_ac_${x.slug}`)).map((x) => x.slug)} />
+      <PdpClient catalog={catalog} items={items} startSlug={p.slug} theme={theme} eyebrow={col ? `${col.name} · ${REALMS[theme] ? t(REALMS[theme].realm) : t('collection')}` : ''} settings={{ return_days: settings.return_days, delivery_days: settings.delivery_days }} whatsapp={settings.whatsapp} wristPhotos={[imgs.wrist_small?.image, imgs.wrist_large?.image].filter(Boolean)} col={col ? { name: col.name, sanskrit: col.sanskrit, meaning: col.meaning, story: col.story } : null} realm={REALMS[theme] || null} box={imgs.box_photo?.image || '/box.jpg'} handPhoto={imgs.pdp_hand?.image || ''} showGlow={col?.show_glow !== false} checkout={{ cfg: shippingCfg(settings), rzpReady: !!process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID, waEnabled: !!process.env.NEXT_PUBLIC_WA_CONFIRM, deliveryDays: settings.delivery_days }} unlockedSlugs={items.filter((x) => cookies().get(`yg_ac_${x.slug}`)).map((x) => x.slug)} />
 
       {!!reviews.length && (
         <div style={{ marginTop: 90 }}><div className="sec-head"><h2>{t('Reviews')}</h2></div>

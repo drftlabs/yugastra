@@ -7,7 +7,7 @@ import { priceOrder, shippingCfg, checkDiscount, hasAdvance } from '@/lib/pricin
 import { markPaid } from '@/lib/orders';
 import { cleanPhone, validPhone } from '@/lib/whatsapp';
 
-export async function POST(req) {
+async function handle(req) {
   const c = serviceClient();
   if (!c) return NextResponse.json({ error: 'Store is in preview mode. Connect Supabase to take orders.' }, { status: 503 });
   const b = await req.json();
@@ -54,22 +54,31 @@ export async function POST(req) {
     await c.from('wa_otps').update({ verified_until: null }).eq('phone', phone);
   }
 
-  const { data: num } = await c.rpc('next_order_number');
-  const { data: order, error } = await c.from('orders').insert({
+  const { data: num, error: nerr } = await c.rpc('next_order_number');
+  if (nerr || !num) return NextResponse.json({ error: 'Order numbering is not set up in the database. Run supabase/schema.sql again.' }, { status: 500 });
+  const row = {
     order_number: num, status: 'pending_payment', name: u.name.trim(), email: u.email.trim().toLowerCase(), phone,
     address: u.address.trim(), landmark: (u.landmark || '').trim() || null, city: u.city, state: u.state, pincode: u.pincode, items,
     subtotal: pr.subtotal, discount: pr.discount, discount_code: d.ok ? d.code : null, shipping: pr.shipping,
     total: pr.total, payment_method: method, amount_due: pr.due, lang: b.lang === 'hi' ? 'hi' : 'en',
-  }).select().single();
-  if (error) return NextResponse.json({ error: 'Could not create order.' }, { status: 500 });
+  };
+  let { data: order, error } = await c.from('orders').insert(row).select().single();
+  if (error && /landmark|lang/.test(error.message || '')) { // older database without these columns
+    delete row.landmark; delete row.lang; ({ data: order, error } = await c.from('orders').insert(row).select().single());
+  }
+  if (error) { console.error('order insert', error); return NextResponse.json({ error: `Could not create order: ${error.message}. Run the latest SQL files in Supabase.` }, { status: 500 }); }
   for (const a of accessIds) { // single-use: spend the code once the order exists
     await c.from('access_codes').update({ used: true, used_at: new Date().toISOString() }).eq('id', a.id);
     await c.from('waitlist_entries').update({ status: 'purchased' }).eq('email', order.email).eq('product_id', a.product_id);
   }
 
   if (pr.payNow === 0) {
-    await markPaid(c, order, 'COD');
+    try { await markPaid(c, order, 'COD'); } catch (e) { console.error('markPaid', e); } // the order exists; follow-up steps must not fail the customer
     return NextResponse.json({ cod: true, orderNumber: order.order_number, due: pr.due, total: pr.total });
+  }
+  if (!process.env.RAZORPAY_KEY_ID || !process.env.RAZORPAY_KEY_SECRET) {
+    await c.from('orders').update({ status: 'cancelled', notes: 'Razorpay keys missing' }).eq('id', order.id);
+    return NextResponse.json({ error: 'Online payment is not set up yet (Razorpay keys missing). Please choose cash on delivery.' }, { status: 503 });
   }
   try {
     const rz = new Razorpay({ key_id: process.env.RAZORPAY_KEY_ID, key_secret: process.env.RAZORPAY_KEY_SECRET });
@@ -82,4 +91,10 @@ export async function POST(req) {
   } catch (e) {
     console.error(e); return NextResponse.json({ error: 'Payment gateway error. Please try again.' }, { status: 502 });
   }
+}
+
+// Never let an unexpected error return an empty 500: the checkout form shows the message.
+export async function POST(req) {
+  try { return await handle(req); }
+  catch (e) { console.error('checkout/create', e); return NextResponse.json({ error: `Checkout error: ${e?.message || 'unknown'}. Open Admin → Checkout check.` }, { status: 500 }); }
 }

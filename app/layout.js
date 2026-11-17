@@ -5,7 +5,7 @@ import { LangProvider } from '@/components/LangCtx';
 import { HindiSuggest } from '@/components/LangSwitch';
 import { headers } from 'next/headers';
 
-const outfit = Outfit({ subsets: ['latin'], variable: '--font-outfit', weight: ['200', '300', '400', '500'] });
+const outfit = Outfit({ subsets: ['latin'], variable: '--font-outfit', weight: ['200', '300', '400', '500', '700'] });
 const deva = Noto_Sans_Devanagari({ subsets: ['devanagari'], variable: '--font-deva', weight: ['300', '400', '500'] });
 
 export const metadata = {

@@ -37,3 +37,9 @@ Add `RESEND_API_KEY`, `EMAIL_FROM` (a verified domain) and `ADMIN_NOTIFY_EMAIL`.
 
 ## Before launch
 Supplier 5 ATM test report; trademark check; Hindi copy read-through; place a test order in Razorpay test mode and a test COD order with WhatsApp.
+
+## Update v13 (tags, Hindi side line, new taglines)
+1. Supabase → SQL editor → run `supabase/tags-update.sql`, then `supabase/products-seed.sql` (adds tags, taglines, Hindi side lines and image links).
+2. Redeploy on Vercel.
+3. Admin → **Checkout check** shows what is missing if checkout fails (keys, tables, products).
+4. Admin → Products: the **Tags** field (one per line: New, Bestseller, Limited, or your own) and the **Hindi side line** field.
