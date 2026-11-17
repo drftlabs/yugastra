@@ -90,7 +90,7 @@ const short = (col?.name && p.name.toUpperCase().startsWith(col.name.toUpperCase
           {realm && <div className="ml" style={{ marginTop: 10, color: 'var(--gold)', '--d': '270ms' }} data-rv>{t(realm.realm)} · {t(realm.colour)}</div>}
         </section>
       )}
-      {p.images?.[3] && (<div className={`edge sq t-${theme}`} data-rv>{showGlow && <Sparkles theme={theme} n={8} />}<img src={opt(p.images[3], 1080, 85)} alt={p.name} loading="lazy" decoding="async" /></div>)}
+      {p.images?.[3] && (<div className={`edge sq t-${theme}`} data-rv>{showGlow && <Sparkles theme={theme} n={22} />}<img src={opt(p.images[3], 1080, 85)} alt={p.name} loading="lazy" decoding="async" /></div>)}
 
       {(p.long_description || realm) && (
         <section className="mean desc-sm">
@@ -98,7 +98,7 @@ const short = (col?.name && p.name.toUpperCase().startsWith(col.name.toUpperCase
           {realm && (<><h3 {...rv(2)}>{t('The colour')}</h3><p {...rv(3)}>{t(realm.meaning)}</p></>)}
         </section>
       )}
-      {p.images?.[5] && (<div className={`edge sq t-${theme}`} data-rv>{showGlow && <Sparkles theme={theme} n={8} />}<img src={opt(p.images[5], 1080, 85)} alt={p.name} loading="lazy" decoding="async" /></div>)}
+      {p.images?.[5] && (<div className={`edge sq t-${theme}`} data-rv>{showGlow && <Sparkles theme={theme} n={22} />}<img src={opt(p.images[5], 1080, 85)} alt={p.name} loading="lazy" decoding="async" /></div>)}
 
       <section className="pdp-details">
         <div className="assure" data-rv><div>{lang === 'hi' ? <>एक वर्ष की<br />वारंटी</> : <>1-year<br />warranty</>}</div><div>{lang === 'hi' ? <>जापानी<br />क्वार्ट्ज़</> : <>Japanese<br />quartz</>}</div><div>{lang === 'hi' ? <>{settings.return_days} दिन में<br />वापसी</> : <>{settings.return_days}-day<br />returns</>}</div></div>

@@ -11,7 +11,7 @@ export default async function All() {
   return (
     <div className="page"><div className="wrap">
       <h1>{t('Watches')}</h1><p style={{ color: 'var(--muted)', marginBottom: 40 }}>{t('Five dials from the Vedic sky. Choose the dial, then the case and strap.')}</p>
-      <div className="grid3">{prods.map((p) => <ProductCard key={p.id} p={p} theme={cols.find((c) => c.id === p.collection_id)?.theme || 'dhruv'} />)}</div>
+      <div className="grid2">{prods.map((p) => <ProductCard key={p.id} p={p} theme={cols.find((c) => c.id === p.collection_id)?.theme || 'dhruv'} />)}</div>
       {!prods.length && <p style={{ color: 'var(--muted)' }}>{t('New watches arrive soon.')}</p>}
     </div></div>
   );

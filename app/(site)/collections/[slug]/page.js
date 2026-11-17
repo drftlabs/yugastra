@@ -19,7 +19,7 @@ export default async function Collection({ params }) {
       <div className="eyebrow">{REALMS[c.theme] ? t(REALMS[c.theme].realm) : c.headline || c.tagline}</div><h1 style={{ marginTop: 10 }}>{c.name}</h1>
       <div className="serif" style={{ fontSize: 22, color: 'var(--gold)', margin: '8px 0 14px' }}>{c.headline}</div>
       <div style={{ marginBottom: 34 }} />
-      <div className="grid3">{prods.map((p) => <ProductCard key={p.id} p={p} theme={c.theme} />)}</div>
+      <div className="grid2">{prods.map((p) => <ProductCard key={p.id} p={p} theme={c.theme} />)}</div>
       {!prods.length && <p style={{ color: 'var(--muted)' }}>{t('Watches in this collection arrive soon.')}</p>}
     {posts[0] && <div style={{ margin: '60px 0 0', textAlign: 'center' }}><Link className="link-arrow" href={`/journal/${posts[0].slug}`}>{posts[0].title} →</Link></div>}
     <NameNote compact /></div></div>

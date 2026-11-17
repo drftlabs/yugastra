@@ -5,7 +5,8 @@ import NameNote from '@/components/NameNote';
 import RealmQuiz from '@/components/RealmQuiz';
 import DetailGallery from '@/components/DetailGallery';
 import OrbScene from '@/components/OrbScene';
-import ProdRow from '@/components/ProdRow';
+import InfiniteRow from '@/components/InfiniteRow';
+import CollectionSlider from '@/components/CollectionSlider';
 import { REALMS, SKT } from '@/lib/brand';
 import { getSiteImages, getSlides, getSettings, getCollections, getProducts } from '@/lib/data';
 import { getLang } from '@/lib/lang';
@@ -35,21 +36,12 @@ export default async function Home() {
 
       <NameNote />
 
-      {collections.map((c, i) => (
-        <section key={c.id} className={`feat t-${c.theme} ${i % 2 ? 'rev' : ''}`}>
-          <Link href={`/collections/${c.slug}`} className="feat-hit" aria-label={c.name} />
-          <div className={`feat-art ${(c.banner || imgs[`realm_${c.theme}`]) ? '' : 'orbwrap'}`}>{(c.banner || imgs[`realm_${c.theme}`]) ? <img loading="lazy" decoding="async" src={imgs[`realm_${c.theme}`]?.image || c.banner} alt={c.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} /> : <><OrbScene theme={c.theme} /><Dial theme={c.theme} /></>}</div>
-          <div className="feat-copy" data-rv>
-            <div className="eyebrow">{REALMS[c.theme] ? t(REALMS[c.theme].realm) : `${c.name} ${t('collection')}`}</div>
-            <h2 className="fc-name">{c.name}{(c.sanskrit || SKT[c.theme]) && <span className="hi-sub">{c.sanskrit || SKT[c.theme]}</span>}</h2>
-            <h2>{c.headline || c.tagline}</h2>
-            <p>{c.description}</p>
-            <div><Link href={`/collections/${c.slug}`} className="btn">{t('Discover →')}</Link></div>
-          </div>
-        </section>
-      ))}
+      <CollectionSlider discover={t('Discover →')} items={collections.map((c) => {
+        const pr = allP.find((x) => x.collection_id === c.id);
+        return { slug: c.slug, name: c.name, theme: c.theme, sanskrit: c.sanskrit || SKT[c.theme], realm: REALMS[c.theme] ? t(REALMS[c.theme].realm) : `${c.name} ${t('collection')}`, headline: c.headline || c.tagline, description: c.description, image: imgs[`realm_${c.theme}`]?.image || c.banner || pr?.images?.[2] || pr?.images?.[0] || '' };
+      })} />
 
-      <div className="wrap"><ProdRow title={t('New & bestsellers')} items={tagged} /></div>
+      <InfiniteRow title={t('New & bestsellers')} items={tagged} />
 
       <RealmQuiz collections={collections} />
 

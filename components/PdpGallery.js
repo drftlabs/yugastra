@@ -50,7 +50,7 @@ export default function PdpGallery({ images = [], box = '', theme, name, caseCol
   return (
     <div className="pdp-gal">
       <div className={`main ${n ? 'zoomable has-img' : 'floor'}`}>
-        {showGlow && <><div className={`pglow t-${theme}`} aria-hidden="true" /><Sparkles theme={theme} n={16} /></>}
+        {showGlow && <><div className={`pglow t-${theme}`} aria-hidden="true" /><Sparkles theme={theme} n={26} /></>}
         {hindiLine && <div className="hline" aria-hidden="true">{hindiLine}</div>}
         {n ? (
           <div className="gal-view" style={{ touchAction: zoomed ? 'none' : 'pan-y' }} onPointerDown={down} onPointerMove={moveP} onPointerUp={up} onPointerCancel={up}>
