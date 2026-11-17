@@ -8,7 +8,7 @@ export default async function Order({ params }) {
   const { db } = await requireAdmin('orders'); if (!db) return <Preview />;
   const { data: o } = await db.from('orders').select('*').eq('id', params.id).maybeSingle(); if (!o) notFound();
   const act = updateOrder.bind(null, o.id);
-  return (<><Link href="/admin/orders" className="link-arrow">← Orders</Link><h1 style={{ marginTop: 18 }}>{o.order_number}</h1>
+  return (<><Link href="/admin/orders" className="link-arrow">← Orders</Link><h1 style={{ marginTop: 18 }}>{o.order_number} <span className={`pm ${o.payment_method === 'cod' ? 'cod' : 'pre'}`}>{o.payment_method === 'cod' ? 'COD' : 'Prepaid'}</span></h1>
     <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(320px,1fr))', gap: 20 }}>
       <div className="box"><div className="eyebrow">Customer</div><p style={{ margin: '10px 0' }}>{o.name}<br />{o.email}<br />{o.phone}<br />{o.address}, {o.city}, {o.state} {o.pincode}</p>
         <div className="eyebrow" style={{ marginTop: 20 }}>Items</div>{(o.items || []).map((i) => <div className="row ord-row" key={i.id}><span className="ord-it">{i.image && <img src={i.image} alt="" />}<span>{i.name} × {i.qty}{i.slug && <><br /><Link href={`/products/${i.slug}`} target="_blank" className="link-arrow" style={{ fontSize: 10 }}>View product ↗</Link></>}</span></span><span>{inr(i.price * i.qty)}</span></div>)}

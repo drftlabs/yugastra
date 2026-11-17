@@ -1,5 +1,6 @@
 import Link from '@/components/L';
 import { notFound } from 'next/navigation';
+import { waOn } from '@/lib/whatsapp';
 import { shippingCfg } from '@/lib/pricing';
 import PdpClient from '@/components/PdpClient';
 import NameNote from '@/components/NameNote';
@@ -27,7 +28,7 @@ export default async function Product({ params }) {
   const feats = Array.isArray(p.features) ? p.features : [];
   return (
     <div className="page pdp-page"><div className="wrap">
-      <PdpClient catalog={catalog} items={items} startSlug={p.slug} theme={theme} eyebrow={col ? `${col.name} · ${REALMS[theme] ? t(REALMS[theme].realm) : t('collection')}` : ''} settings={{ return_days: settings.return_days, delivery_days: settings.delivery_days }} whatsapp={settings.whatsapp} wristPhotos={[imgs.wrist_small?.image, imgs.wrist_large?.image].filter(Boolean)} col={col ? { name: col.name, sanskrit: col.sanskrit, meaning: col.meaning, story: col.story } : null} realm={REALMS[theme] || null} box={imgs.box_photo?.image || '/box.jpg'} handPhoto={imgs.pdp_hand?.image || ''} showGlow={col?.show_glow !== false} checkout={{ cfg: shippingCfg(settings), rzpReady: !!process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID, waEnabled: !!process.env.NEXT_PUBLIC_WA_CONFIRM, deliveryDays: settings.delivery_days }} unlockedSlugs={items.filter((x) => cookies().get(`yg_ac_${x.slug}`)).map((x) => x.slug)} />
+      <PdpClient catalog={catalog} items={items} startSlug={p.slug} theme={theme} eyebrow={col ? `${col.name} · ${REALMS[theme] ? t(REALMS[theme].realm) : t('collection')}` : ''} settings={{ return_days: settings.return_days, delivery_days: settings.delivery_days }} whatsapp={settings.whatsapp} wristPhotos={[imgs.wrist_small?.image, imgs.wrist_large?.image].filter(Boolean)} col={col ? { name: col.name, sanskrit: col.sanskrit, meaning: col.meaning, story: col.story } : null} realm={REALMS[theme] || null} box={imgs.box_photo?.image || '/box.jpg'} handPhoto={imgs.pdp_hand?.image || ''} showGlow={col?.show_glow !== false} checkout={{ cfg: shippingCfg(settings), rzpReady: !!process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID, waEnabled: waOn(), deliveryDays: settings.delivery_days }} unlockedSlugs={items.filter((x) => cookies().get(`yg_ac_${x.slug}`)).map((x) => x.slug)} />
 
       {!!reviews.length && (
         <div style={{ marginTop: 90 }}><div className="sec-head"><h2>{t('Reviews')}</h2></div>

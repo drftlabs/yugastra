@@ -29,8 +29,12 @@ export default async function P() {
         {checks.map(([ok, l, f]) => <Row key={l} ok={ok} label={l} fix={f} />)}
         <h3 style={{ margin: '22px 0 8px' }}>Online payment</h3>
         <Row ok={env('RAZORPAY_KEY_ID') && env('RAZORPAY_KEY_SECRET') && env('NEXT_PUBLIC_RAZORPAY_KEY_ID')} label="Razorpay keys (RAZORPAY_KEY_ID, RAZORPAY_KEY_SECRET, NEXT_PUBLIC_RAZORPAY_KEY_ID)" fix="Without these, online payment cannot start. Cash on delivery still works." />
+        <Row ok={env('RAZORPAY_KEY_ID') && process.env.RAZORPAY_KEY_ID === process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID} label="NEXT_PUBLIC_RAZORPAY_KEY_ID matches RAZORPAY_KEY_ID" fix="Both must be the same Key ID (rzp_test_… or rzp_live_…)." />
+        <Row ok={env('RAZORPAY_WEBHOOK_SECRET')} label="RAZORPAY_WEBHOOK_SECRET (backup confirmation if the customer closes the page)" fix="Razorpay → Settings → Webhooks → add https://YOURDOMAIN/api/razorpay/webhook for payment.captured and copy its secret here." />
         <h3 style={{ margin: '22px 0 8px' }}>Cash on delivery with WhatsApp code</h3>
-        <Row ok={!env('NEXT_PUBLIC_WA_CONFIRM') || (env('WHATSAPP_TOKEN') && env('WHATSAPP_PHONE_ID'))} label="WhatsApp Cloud API (WHATSAPP_TOKEN, WHATSAPP_PHONE_ID)" fix="NEXT_PUBLIC_WA_CONFIRM is on but the WhatsApp keys are missing, so the code can never be sent. Add the keys, or remove NEXT_PUBLIC_WA_CONFIRM to skip the code." />
+        <Row ok={!!((process.env.WHATSAPP_TOKEN || process.env.WHATSAPP_ACCESS_TOKEN) && (process.env.WHATSAPP_PHONE_ID || process.env.WHATSAPP_PHONE_NUMBER_ID))} label="WhatsApp keys: WHATSAPP_TOKEN and WHATSAPP_PHONE_ID" fix="WHATSAPP_PHONE_ID is the Phone number ID from Meta (a long number), not the phone number itself." />
+        <Row ok={true} label={`Template name in use: ${process.env.WHATSAPP_TEMPLATE || 'order_confirm_code'} (language ${process.env.WHATSAPP_LANG || 'en'})`} />
+        <Row ok={!process.env.WA_TEST_CODE} label="WA_TEST_CODE is empty" fix="WA_TEST_CODE skips real WhatsApp messages. Remove it in production." />
         <p style={{ color: 'var(--muted)', marginBottom: 0 }}>Variables changed in Vercel only take effect after a new deployment.</p>
       </div>
     </>

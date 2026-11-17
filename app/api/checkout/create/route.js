@@ -3,6 +3,7 @@ import { cookies } from 'next/headers';
 import Razorpay from 'razorpay';
 import { serviceClient } from '@/lib/supabase/server';
 import { getSettings } from '@/lib/data';
+import { waOn } from '@/lib/whatsapp';
 import { priceOrder, shippingCfg, checkDiscount, hasAdvance } from '@/lib/pricing';
 import { markPaid } from '@/lib/orders';
 import { cleanPhone, validPhone } from '@/lib/whatsapp';
@@ -45,7 +46,7 @@ async function handle(req) {
   const pr = priceOrder({ subtotal, discount: d.ok ? d.amount : 0, method, cfg, advance });
 
   // COD with no advance must be phone-verified via WhatsApp code.
-  const waEnabled = !!process.env.NEXT_PUBLIC_WA_CONFIRM;
+  const waEnabled = waOn();
   const needWA = waEnabled && method === 'cod' && !advance;
   if (needWA) {
     const { data: otp } = await c.from('wa_otps').select('*').eq('phone', phone).maybeSingle();

@@ -9,6 +9,6 @@ export async function POST(req) {
   if (ex?.sent_at && Date.now() - new Date(ex.sent_at).getTime() < 30000) return NextResponse.json({ error: 'Please wait 30 seconds before resending.' }, { status: 429 });
   const code = process.env.WA_TEST_CODE || newCode();
   await c.from('wa_otps').upsert({ phone, code_hash: hashCode(phone, code), expires_at: new Date(Date.now() + 600000).toISOString(), attempts: 0, sent_at: new Date().toISOString(), verified_until: null });
-  if (!process.env.WA_TEST_CODE) { try { await sendWhatsAppCode(phone, code); } catch (e) { return NextResponse.json({ error: 'Could not send WhatsApp code.' }, { status: 502 }); } }
+  if (!process.env.WA_TEST_CODE) { try { await sendWhatsAppCode(phone, code); } catch (e) { console.error('whatsapp', e?.message); return NextResponse.json({ error: `Could not send the WhatsApp code. ${e?.message || ''}`.trim() }, { status: 502 }); } }
   return NextResponse.json({ ok: true });
 }
