@@ -12,7 +12,7 @@ export const metadata = {
   metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || 'https://yugastra.com'),
   title: { default: 'YUGASTRA — The weapon of timelessness', template: '%s · YUGASTRA' },
   description: 'YUGASTRA, from Yuga (an age) and Astra (the instrument): the weapon of timelessness. Five realms of the Vedic sky in embossed dials, Japanese quartz, and a 1-year warranty.',
-  icons: { icon: '/monogram.png' },
+  icons: { icon: [{ url: '/favicon.ico', sizes: '48x48' }, { url: '/favicon.png', type: 'image/png', sizes: '512x512' }], apple: '/favicon.png', shortcut: '/favicon.ico' },
   openGraph: { title: 'YUGASTRA', description: 'Yuga + Astra. The weapon of timelessness.', images: ['/logo.png'] },
 };
 export const viewport = { width: 'device-width', initialScale: 1, maximumScale: 1, userScalable: false };

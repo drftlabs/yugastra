@@ -122,8 +122,9 @@ export default function CheckoutForm({ cfg, rzpReady, waEnabled, deliveryDays })
             </button>
             {cfg.codEnabled && (
               <button type="button" className="pay-opt pay-cod" disabled={busy} onClick={() => place('cod', false)}>
+                <span className="po-ban cod-ban">+ {inr(cfg.codFee)} {t('COD fee')}</span>
                 <b>{t('Cash on delivery')} · {inr(prCod.total)}</b>
-                <small>{inr(cfg.codFee)} {t('COD fee')} {t('extra')}</small>
+                <small>{lang === 'hi' ? 'वितरण पर भुगतान · WhatsApp कूट से पुष्टि' : 'Pay when it arrives · confirmed with a WhatsApp code'}</small>
               </button>
             )}
           </div>

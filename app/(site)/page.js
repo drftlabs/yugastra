@@ -37,8 +37,8 @@ export default async function Home() {
       <NameNote />
 
       <CollectionSlider discover={t('Discover →')} items={collections.map((c) => {
-        const pr = allP.find((x) => x.collection_id === c.id);
-        return { slug: c.slug, name: c.name, theme: c.theme, sanskrit: c.sanskrit || SKT[c.theme], realm: REALMS[c.theme] ? t(REALMS[c.theme].realm) : `${c.name} ${t('collection')}`, headline: c.headline || c.tagline, description: c.description, image: imgs[`realm_${c.theme}`]?.image || c.banner || pr?.images?.[2] || pr?.images?.[0] || '' };
+        const pr = allP.find((x) => x.collection_id === c.id) || allP.find((x) => String(x.name).toUpperCase().startsWith(String(c.name).toUpperCase()));
+        return { slug: c.slug, name: c.name, theme: c.theme, sanskrit: c.sanskrit || SKT[c.theme], realm: REALMS[c.theme] ? t(REALMS[c.theme].realm) : `${c.name} ${t('collection')}`, headline: c.headline || c.tagline, description: c.description, image: pr?.images?.[0] || imgs[`realm_${c.theme}`]?.image || '' };
       })} />
 
       <InfiniteRow title={t('New & bestsellers')} items={tagged} />

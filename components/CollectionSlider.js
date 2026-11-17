@@ -18,8 +18,9 @@ export default function CollectionSlider({ items = [], discover = 'Discover →'
           <article key={c.slug} className={`cs-card t-${c.theme}`}>
             <Link href={`/collections/${c.slug}`} className="cs-hit" aria-label={c.name} />
             <div className="cs-art">
-              <div className="cs-glow" aria-hidden="true" /><Sparkles theme={c.theme} n={14} />
-              {c.image ? <img src={opt(c.image, 480, 82)} alt={c.name} loading="lazy" decoding="async" /> : <Dial theme={c.theme} />}
+              <div className="cs-glow" aria-hidden="true" /><Sparkles theme={c.theme} n={30} />
+              {c.sanskrit && <div className="cs-mark" aria-hidden="true">{c.sanskrit}</div>}
+              {c.image ? <img src={opt(c.image, 640, 85)} alt={c.name} loading="lazy" decoding="async" /> : <Dial theme={c.theme} />}
             </div>
             <div className="cs-copy">
               <div className="eyebrow">{c.realm}</div>
