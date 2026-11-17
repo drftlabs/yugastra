@@ -17,7 +17,7 @@ export default function ShopProvider({ children }) {
         const ex = cur.find((i) => i.id === p.id);
         const max = p.stock ?? 5;
         if (ex) return cur.map((i) => (i.id === p.id ? { ...i, qty: Math.min(max, 5, i.qty + qty) } : i));
-        return [...cur, { id: p.id, slug: p.slug, name: p.name, price: Number(p.price), image: p.images?.[0] || null, theme: p.theme || 'solar', stock: p.stock, qty }];
+        return [...cur, { id: p.id, slug: p.slug, name: p.name, price: Number(p.price), image: p.images?.[2] || p.images?.[0] || null, theme: p.theme || 'solar', stock: p.stock, qty }];
       });
       if (openDrawer) setOpen(true);
     },
