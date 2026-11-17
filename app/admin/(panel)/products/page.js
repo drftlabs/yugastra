@@ -1,5 +1,6 @@
 import { requireAdmin } from '@/lib/admin';
 import Crud from '@/components/admin/Crud';
+import ProductsCsv from '@/components/admin/ProductsCsv';
 import Preview from '@/components/admin/Preview';
 export default async function P() {
   const { db } = await requireAdmin('products'); if (!db) return <Preview />;
@@ -13,5 +14,5 @@ export default async function P() {
   ];
   const { data: boxRows } = await db.from('site_images').select('*').eq('slot', 'box_photo');
   const boxFields = [{ k: 'slot', type: 'select', options: ['box_photo'], def: 'box_photo', req: true }, { k: 'image', type: 'image', hint: 'One box photo. It is added as the last photo of every product.' }, { k: 'active', type: 'bool', def: true }];
-  return <><h1>Box photo (shown last on every product)</h1><Crud table="site_images" title="box photo" fields={boxFields} rows={boxRows || []} columns={[{ k: 'slot' }, { k: 'active', bool: true }]} /><h1 style={{ marginTop: 40 }}>Products & inventory</h1><Crud table="products" title="timepiece" fields={fields} rows={rows || []} columns={[{ k: 'name' }, { k: 'price', money: true }, { k: 'stock' }, { k: 'sku', label: 'SKU' }, { k: 'featured', bool: true }, { k: 'active', bool: true }]} /></>;
+  return <><h1>Box photo (shown last on every product)</h1><Crud table="site_images" title="box photo" fields={boxFields} rows={boxRows || []} columns={[{ k: 'slot' }, { k: 'active', bool: true }]} /><h1 style={{ marginTop: 40 }}>Products & inventory</h1><ProductsCsv products={rows || []} collections={cols || []} /><Crud table="products" title="timepiece" fields={fields} rows={rows || []} columns={[{ k: 'name' }, { k: 'price', money: true }, { k: 'stock' }, { k: 'sku', label: 'SKU' }, { k: 'featured', bool: true }, { k: 'active', bool: true }]} /></>;
 }

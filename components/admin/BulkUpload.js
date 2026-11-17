@@ -33,6 +33,10 @@ export default function BulkUpload() {
     const b = new Blob(['filename,url\n' + ok.map(r => `${r.name},${r.url}`).join('\n')], { type: 'text/csv' });
     const a = document.createElement('a'); a.href = URL.createObjectURL(b); a.download = 'yugastra-image-links.csv'; a.click();
   };
+  const xlsx = async () => {
+    const X = await import('xlsx'); const ws = X.utils.aoa_to_sheet([['filename', 'sku', 'angle', 'url'], ...ok.map(r => { const m = r.name.match(/^(YG-[A-Z]{3}-[A-Z]{2}-[A-Z]{2})-(\d)/); return [r.name, m ? m[1] : '', m ? Number(m[2]) : '', r.url]; })]);
+    const wb = X.utils.book_new(); X.utils.book_append_sheet(wb, ws, 'Links'); X.writeFile(wb, 'yugastra-image-links.xlsx');
+  };
   return (
     <div className="box">
       <p style={{ color: 'var(--muted)', marginTop: 0 }}>Select many images at once (up to 4.4 MB each). Each keeps its file name, e.g. YG-DHR-BK-BK-1.png. Copy or download the links and send them to be added to the product catalog.</p>
@@ -40,6 +44,7 @@ export default function BulkUpload() {
       {total > 0 && <p><b>{done} / {total}</b> uploaded{ok.length < done ? ` · ${done - ok.length} failed` : ''}</p>}
       {ok.length > 0 && <p style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
         <button className="btn" type="button" onClick={copy}>{copied ? 'Copied ✓' : `Copy all ${ok.length} links`}</button>
+        <button className="btn" type="button" onClick={xlsx}>Download links (Excel)</button>
         <button className="btn" type="button" onClick={csv}>Download links (CSV)</button>
       </p>}
       {rows.length > 0 && <div style={{ overflowX: 'auto' }}><table style={{ width: '100%', fontSize: 13 }}><thead><tr><th align="left">File</th><th align="left">Link</th></tr></thead><tbody>
