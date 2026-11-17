@@ -6,12 +6,13 @@ import PdpBuy from '@/components/PdpBuy';
 import { opt } from '@/lib/img';
 import Sparkles from '@/components/Sparkles';
 import Tags from '@/components/Tags';
-import ProdRow from '@/components/ProdRow';
+import InfiniteRow from '@/components/InfiniteRow';
 import Delivery from '@/components/Delivery';
 import WaitlistBox from '@/components/WaitlistBox';
 import CheckoutModal from '@/components/CheckoutModal';
 import { CASE_HEX, STRAP_HEX } from '@/lib/swatch';
 import { useLang, useT, pre } from '@/components/L';
+import { px } from '@/lib/pixel';
 import { COLOR_HI, hiText } from '@/lib/i18n';
 
 const inr = (n) => '₹' + Number(n || 0).toLocaleString('en-IN');
@@ -32,6 +33,7 @@ export default function PdpClient({ items, startSlug, theme, eyebrow, settings, 
       setRecent(old); localStorage.setItem('yg_recent', JSON.stringify([p.slug, ...old].slice(0, 12)));
     } catch {}
   }, [p.slug]);
+  useEffect(() => { px('ViewContent', { content_ids: [p.id], content_name: p.name, content_type: 'product', value: Number(p.price), currency: 'INR' }); }, [p.id]);
   const byslug = Object.fromEntries(catalog.map((c) => [c.slug, c]));
   const related = [...catalog.filter((c) => c.slug !== p.slug && c.col === col?.name), ...catalog.filter((c) => c.slug !== p.slug && c.col !== col?.name)].slice(0, 8);
   const recentItems = recent.map((s) => byslug[s]).filter(Boolean).slice(0, 8);
@@ -90,7 +92,6 @@ const short = (col?.name && p.name.toUpperCase().startsWith(col.name.toUpperCase
           {realm && <div className="ml" style={{ marginTop: 10, color: 'var(--gold)', '--d': '270ms' }} data-rv>{t(realm.realm)} · {t(realm.colour)}</div>}
         </section>
       )}
-      {p.images?.[3] && (<div className={`edge sq t-${theme}`} data-rv>{showGlow && <Sparkles theme={theme} n={22} />}<img src={opt(p.images[3], 1080, 85)} alt={p.name} loading="lazy" decoding="async" /></div>)}
 
       <div className={`wrow ${p.images?.[5] ? 'has' : ''}`}>
         {p.images?.[5] && (<div className={`wr-img t-${theme}`} data-rv>{showGlow && <Sparkles theme={theme} n={22} />}<img src={opt(p.images[5], 1080, 85)} alt={p.name} loading="lazy" decoding="async" /></div>)}
@@ -102,6 +103,8 @@ const short = (col?.name && p.name.toUpperCase().startsWith(col.name.toUpperCase
         )}
       </div>
 
+      {p.images?.[3] && (<div className={`edge sq t-${theme}`} data-rv>{showGlow && <Sparkles theme={theme} n={22} />}<img src={opt(p.images[3], 1080, 85)} alt={p.name} loading="lazy" decoding="async" /></div>)}
+
       <section className="pdp-details">
         <div className="assure" data-rv><div>{lang === 'hi' ? <>एक वर्ष की<br />वारंटी</> : <>1-year<br />warranty</>}</div><div>{lang === 'hi' ? <>जापानी<br />क्वार्ट्ज़</> : <>Japanese<br />quartz</>}</div><div>{lang === 'hi' ? <>{settings.return_days} दिन में<br />वापसी</> : <>{settings.return_days}-day<br />returns</>}</div></div>
         {!!feats.length && <ul className="feats">{feats.map((f, n) => <li key={f} {...rv(n)}>{lang === 'hi' ? hiText(f) : f}</li>)}</ul>}
@@ -111,8 +114,8 @@ const short = (col?.name && p.name.toUpperCase().startsWith(col.name.toUpperCase
         </div>
       </section>
 
-      <ProdRow title={t('Recently viewed')} items={recentItems} />
-      <ProdRow title={t('Related watches')} items={related} />
+      <InfiniteRow title={t('Recently viewed')} items={recentItems} />
+      <InfiniteRow title={t('Related watches')} items={related} />
 
       {col?.story && (
         <section className="mean desc-sm brand">

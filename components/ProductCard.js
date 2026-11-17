@@ -11,7 +11,7 @@ export default function ProductCard({ p, theme = 'dhruv' }) {
   const save = p.compare_price && p.compare_price > p.price ? Math.round((1 - p.price / p.compare_price) * 100) : 0;
   return (
     <Link href={`/products/${p.slug}`} className="ccard">
-      <div className={`art th-${theme}`}><Tags tags={p.tags} t={t} className="on-img" />{(p.images?.[2] || p.images?.[0]) ? <img loading="lazy" decoding="async" src={opt(p.images[2] || p.images[0], 640)} srcSet={srcSet(p.images[2] || p.images[0], 640)} sizes="(max-width:700px) 90vw, 420px" alt={p.name} /> : <Dial theme={theme} />}</div>
+      <div className={`art th-${theme} t-${theme}`}><Tags tags={p.tags} t={t} className="on-img" />{(p.images?.[2] || p.images?.[0]) ? <img loading="lazy" decoding="async" src={opt(p.images[2] || p.images[0], 640)} srcSet={srcSet(p.images[2] || p.images[0], 640)} sizes="(max-width:700px) 90vw, 420px" alt={p.name} /> : <Dial theme={theme} />}</div>
       <div className="meta">
         {(p.stock_mode === 'waitlist' || p.stock < 1 || p.stock_mode === 'sold_out') && <span className="tag">{p.stock_mode === 'waitlist' ? t('Join the waitlist') : t('Sold out')}</span>}
         <h3>{p.name}</h3><div className="sub">{p.tagline}</div>

@@ -11,7 +11,7 @@ export default async function Order({ params }) {
   return (<><Link href="/admin/orders" className="link-arrow">← Orders</Link><h1 style={{ marginTop: 18 }}>{o.order_number}</h1>
     <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(320px,1fr))', gap: 20 }}>
       <div className="box"><div className="eyebrow">Customer</div><p style={{ margin: '10px 0' }}>{o.name}<br />{o.email}<br />{o.phone}<br />{o.address}, {o.city}, {o.state} {o.pincode}</p>
-        <div className="eyebrow" style={{ marginTop: 20 }}>Items</div>{(o.items || []).map((i) => <div className="row" key={i.id}><span>{i.name} × {i.qty}</span><span>{inr(i.price * i.qty)}</span></div>)}
+        <div className="eyebrow" style={{ marginTop: 20 }}>Items</div>{(o.items || []).map((i) => <div className="row ord-row" key={i.id}><span className="ord-it">{i.image && <img src={i.image} alt="" />}<span>{i.name} × {i.qty}{i.slug && <><br /><Link href={`/products/${i.slug}`} target="_blank" className="link-arrow" style={{ fontSize: 10 }}>View product ↗</Link></>}</span></span><span>{inr(i.price * i.qty)}</span></div>)}
         <div className="row"><span>Discount {o.discount_code && `(${o.discount_code})`}</span><span>−{inr(o.discount)}</span></div><div className="row"><span>Shipping</span><span>{inr(o.shipping)}</span></div><div className="row total"><span>Total ({o.payment_method})</span><span>{inr(o.total)}</span></div>
         {o.amount_due > 0 && <div className="row"><span>Collect on delivery</span><b style={{ color: 'var(--gold)' }}>{inr(o.amount_due)}</b></div>}
         <small style={{ color: 'var(--muted)' }}>Razorpay: {o.razorpay_payment_id || '—'}</small></div>
@@ -21,6 +21,6 @@ export default async function Order({ params }) {
         <div className="field"><label>Tracking number</label><input className="inp" name="tracking_number" defaultValue={o.tracking_number || ''} /></div>
         <div className="field"><label>Tracking URL</label><input className="inp" name="tracking_url" defaultValue={o.tracking_url || ''} /></div>
         <div className="field"><label>Internal notes</label><textarea className="inp" name="notes" defaultValue={o.notes || ''} /></div>
-        <button className="btn btn-gold">Save{' '}<small>(emails customer when shipped)</small></button></form>
+        <button className="btn-buy" style={{ maxWidth: 260 }}>Save{' '}<small>(emails customer when shipped)</small></button></form>
     </div></>);
 }

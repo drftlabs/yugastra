@@ -6,7 +6,8 @@ import Link, { useLang, useT, pre } from '@/components/L';
 import { useShop } from '@/components/ShopProvider';
 import { opt } from '@/lib/img';
 import Dial from '@/components/Dial';
-import { priceOrder, hasAdvance } from '@/lib/pricing';
+import { priceOrder } from '@/lib/pricing';
+import { px } from '@/lib/pixel';
 const inr = (n) => '₹' + Number(n).toLocaleString('en-IN');
 // Always returns an object, even if the server sends HTML or nothing (so the form never fails silently).
 const jfetch = async (url, body) => {
@@ -17,13 +18,15 @@ const jfetch = async (url, body) => {
   } catch { return { ok: false, status: 0, error: 'Network problem. Please check your connection and try again.' }; }
 };
 
-export default function CheckoutForm({ cfg, rzpReady, waEnabled, deliveryDays }) {
+export default function CheckoutForm({ cfg, rzpReady, waEnabled, deliveryDays, onEmpty }) {
   const lang = useLang(); const t = useT();
-  const { items, subtotal, clear } = useShop(); const r = useRouter();
+  const { items, subtotal, clear, remove } = useShop(); const r = useRouter();
   const [f, setF] = useState({ name: '', email: '', phone: '', address: '', landmark: '', city: '', state: '', pincode: '' });
   const [code, setCode] = useState(''); const [disc, setDisc] = useState({ amount: 0, code: '' }); const [dmsg, setDmsg] = useState('');
   const [err, setErr] = useState(''); const [busy, setBusy] = useState(false);
   const [wa, setWa] = useState({ open: false, sent: false, code: '', timer: 0, msg: '', busy: false });
+  const had = useRef(false);
+  useEffect(() => { if (items.length) { if (!had.current) { had.current = true; px('InitiateCheckout', { value: subtotal, currency: 'INR', num_items: items.length }); } } else if (had.current && onEmpty) onEmpty(); }, [items.length]);
   const set = (k) => (e) => setF({ ...f, [k]: e.target.value });
   const pr = useMemo(() => priceOrder({ subtotal, discount: disc.amount, method: 'online', cfg, advance: false }), [subtotal, disc, cfg]);
   const prCod = useMemo(() => priceOrder({ subtotal, discount: disc.amount, method: 'cod', cfg, advance: false }), [subtotal, disc, cfg]);
@@ -69,7 +72,7 @@ export default function CheckoutForm({ cfg, rzpReady, waEnabled, deliveryDays })
     setBusy(true);
     const d = await jfetch('/api/checkout/create', { items: items.map((i) => ({ id: i.id, qty: i.qty })), customer: { ...f, phone: ph }, method, advance: false, code: disc.code, lang });
     if (!d.ok) { setBusy(false); if (d.needWA) return sendWA(); return setErr(t(d.error || 'Something went wrong.') + (d.status ? ` (${d.status})` : '')); }
-    const done = (n) => { clear(); r.push(pre(lang, `/checkout/success?o=${n}&due=${d.due || 0}`)); };
+    const done = (n) => { try { sessionStorage.setItem('yg_last', JSON.stringify({ value: pr.total, n: items.length })); } catch {} clear(); r.push(pre(lang, `/checkout/success?o=${n}&due=${d.due || 0}`)); };
     if (d.cod) return done(d.orderNumber);
     if (!window.Razorpay) await new Promise((ok) => { const sc = document.createElement('script'); sc.src = 'https://checkout.razorpay.com/v1/checkout.js'; sc.onload = ok; sc.onerror = ok; document.body.appendChild(sc); });
     if (!window.Razorpay) { setBusy(false); return setErr(t('Could not load the payment window. Check your connection and try again.')); }
@@ -104,11 +107,12 @@ export default function CheckoutForm({ cfg, rzpReady, waEnabled, deliveryDays })
         </div>
         <div className="co-sum">
           <div className="co-lines">
-            {items.map((i) => <div className="ci" key={i.id}><div className="th">{i.image ? <img loading="lazy" decoding="async" src={opt(i.image, 128)} alt="" /> : <Dial theme={i.theme} />}</div><div><div className="ci-n">{i.name}</div><small style={{ color: 'var(--muted)' }}>{t('Qty')} {i.qty}</small></div><div className="price">{inr(i.price * i.qty)}</div></div>)}
+            {items.map((i) => <div className="ci" key={i.id}><div className="th">{i.image ? <img loading="lazy" decoding="async" src={opt(i.image, 128)} alt="" /> : <Dial theme={i.theme} />}</div><div><div className="ci-n">{i.name}</div><small style={{ color: 'var(--muted)' }}>{t('Qty')} {i.qty}</small><br /><button type="button" className="ci-x" onClick={() => remove(i.id)}>{t('Remove')}</button></div><div className="price">{inr(i.price * i.qty)}</div></div>)}
             <div className="co-code"><input className="inp" placeholder={t('Discount code')} value={code} onChange={(e) => setCode(e.target.value)} /><button type="button" className="btn sm" onClick={applyCode}>{t('Apply')}</button></div>
             {dmsg && <div className={disc.amount ? 'ok' : 'err'}>{dmsg}</div>}
             <div className="row"><span>{t('Subtotal')}</span><span>{inr(pr.subtotal)}</span></div>
-            {pr.discount > 0 && <div className="row"><span>{t('Discount')}</span><span>−{inr(pr.discount)}</span></div>}
+            {(pr.discount - (pr.prepaid || 0)) > 0 && <div className="row"><span>{t('Discount')}</span><span>−{inr(pr.discount - (pr.prepaid || 0))}</span></div>}
+            {pr.prepaid > 0 && <div className="row pp"><span>{lang === 'hi' ? `ऑनलाइन भुगतान छूट (${cfg.prepaidPct}%)` : `Prepaid discount (${cfg.prepaidPct}%)`}</span><span>−{inr(pr.prepaid)}</span></div>}
             <div className="row"><span>{t('Shipping ')}</span><span>{pr.shipping ? inr(pr.shipping) : t('Free')}</span></div>
             <div className="row total"><span>{t('Total')}</span><span>{inr(pr.total)}</span></div>
             <small className="co-days">{t('Delivery in')} {lang === 'hi' ? String(deliveryDays).replace('business days', 'कार्य-दिवस') : deliveryDays}</small>
@@ -116,7 +120,7 @@ export default function CheckoutForm({ cfg, rzpReady, waEnabled, deliveryDays })
           {err && <div className="err co-err">{err}</div>}
           <div className="co-pay">
             <button type="button" className="pay-opt pay-on" disabled={busy || !rzpReady} onClick={() => place('online', false)}>
-              <span className="po-ban">{t('Free shipping')}</span>
+              <span className="po-ban">{pr.prepaid > 0 ? (lang === 'hi' ? `निःशुल्क वितरण · ${cfg.prepaidPct}% छूट` : `Free shipping · ${cfg.prepaidPct}% off`) : t('Free shipping')}</span>
               <b>{busy ? t('Please wait…') : t('Pay online')} · {inr(pr.total)}</b>
               <small>{t('UPI · Cards · Net banking')}{!rzpReady ? ` · ${t('Available soon')}` : ''}</small>
             </button>

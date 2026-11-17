@@ -18,7 +18,7 @@ export default function CheckoutModal({ open, onClose, checkout }) {
       <div className="co-panel" onClick={(e) => e.stopPropagation()}>
         <button className="co-x" onClick={onClose} aria-label="Close">✕</button>
         <h2>{t('Checkout')}</h2>
-        <CheckoutForm {...checkout} />
+        <CheckoutForm {...checkout} onEmpty={onClose} />
       </div>
     </div>, document.body);
 }

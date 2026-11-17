@@ -54,9 +54,9 @@ export default function PdpGallery({ images = [], box = '', theme, name, caseCol
         {hindiLine && <div className="hline" aria-hidden="true">{hindiLine}</div>}
         {n ? (
           <div className="gal-view" style={{ touchAction: zoomed ? 'none' : 'pan-y' }} onPointerDown={down} onPointerMove={moveP} onPointerUp={up} onPointerCancel={up}>
-            <div className="gal-track" style={{ transform: `translateX(calc(${-i * 100}% + ${zoomed ? 0 : drag}px))`, transition: drag ? 'none' : undefined }}>
+            <div className="gal-track">
               {slides.map((x, k) => (
-                <div className="gal-slide" key={k}>
+                <div className={`gal-slide ${k === i ? 'on' : ''}`} key={k}>
                   {x.t === 'vid'
                     ? <video src={x.s} controls playsInline muted loop className="pdp-media" />
                     : <img className="pdp-media" src={opt(x.s, 1080, 85)} alt={name} draggable="false" loading={k <= i + 1 ? 'eager' : 'lazy'} decoding="async" fetchPriority={k === 0 ? 'high' : 'auto'} style={k === i ? { transform: `translate(${z.x}px,${z.y}px) scale(${z.s})`, transition: drag || zoomed ? 'none' : undefined } : undefined} />}

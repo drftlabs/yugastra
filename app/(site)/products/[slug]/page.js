@@ -20,8 +20,8 @@ export default async function Product({ params }) {
   const siblings = col ? await getProducts({ collectionId: col.id }) : [];
   const imgs = await getSiteImages();
   const all = await getProducts();
-  const colName = Object.fromEntries(cols.map((c) => [c.id, c.name]));
-  const catalog = all.map((x) => ({ slug: x.slug, name: x.name, price: x.price, image: x.images?.[2] || x.images?.[0] || '', tags: x.tags || [], col: colName[x.collection_id] || '' }));
+  const colName = Object.fromEntries(cols.map((c) => [c.id, c.name])); const colTheme = Object.fromEntries(cols.map((c) => [c.id, c.theme]));
+  const catalog = all.map((x) => ({ slug: x.slug, name: x.name, price: x.price, image: x.images?.[2] || x.images?.[0] || '', tags: x.tags || [], theme: colTheme[x.collection_id] || 'brand', col: colName[x.collection_id] || '' }));
   const items = siblings.length ? siblings : [p];
   const save = p.compare_price && p.compare_price > p.price ? Math.round((1 - p.price / p.compare_price) * 100) : 0;
   const feats = Array.isArray(p.features) ? p.features : [];

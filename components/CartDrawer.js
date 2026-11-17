@@ -29,7 +29,7 @@ export default function CartDrawer({ freeMin = 0 }) {
           <div className="drawer-f">
             <div className="row total"><span>{t('Subtotal')}</span><span>{inr(subtotal)}</span></div>
             <p style={{ color: 'var(--muted)', fontSize: 12, margin: '8px 0 16px' }}>{t('Shipping and payment options at checkout.')}</p>
-            <Link href="/checkout" className="btn btn-gold btn-block" onClick={() => setOpen(false)}>{t('Checkout')}</Link>
+            <Link href="/checkout" className="btn-buy btn-block cart-go" onClick={() => setOpen(false)}>{t('Checkout')}</Link>
           </div>
         )}
       </aside>

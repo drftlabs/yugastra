@@ -8,7 +8,7 @@ const inr = (n) => '₹' + Number(n || 0).toLocaleString('en-IN');
 export default function InfiniteRow({ title, items = [] }) {
   const t = useT();
   if (!items.length) return null;
-  let base = items; while (base.length < 6) base = [...base, ...items];
+  let base = items; while (base.length < 10) base = [...base, ...items];
   const loop = [...base, ...base];
   return (
     <section className="irow" data-rv>
@@ -17,7 +17,7 @@ export default function InfiniteRow({ title, items = [] }) {
         <div className="irow-track" style={{ '--n': base.length }}>
           {loop.map((p, n) => (
             <Link key={n} href={`/products/${p.slug}`} className="prow-card" tabIndex={n >= base.length ? -1 : 0} aria-hidden={n >= base.length}>
-              <div className="pr-art">{p.image ? <img loading="lazy" decoding="async" src={opt(p.image, 384)} alt={p.name} /> : null}<Tags tags={p.tags} t={t} className="on-img" /></div>
+              <div className={`pr-art t-${p.theme || 'brand'}`}>{p.image ? <img loading="lazy" decoding="async" src={opt(p.image, 384)} alt={p.name} /> : null}<Tags tags={p.tags} t={t} className="on-img" /></div>
               <div className="pr-name">{p.name}</div>
               <div className="pr-price">{inr(p.price)}</div>
             </Link>
