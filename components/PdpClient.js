@@ -18,6 +18,23 @@ import { COLOR_HI, hiText } from '@/lib/i18n';
 const inr = (n) => '₹' + Number(n || 0).toLocaleString('en-IN');
 
 // Holds the chosen watch; case and strap choices swap it in place, with no page reload.
+// Splits a long paragraph into two at the sentence break nearest the middle, so it reads easily.
+const split2 = (txt) => {
+  const t = String(txt || '').trim();
+  const sent = t.match(/[^.!?।]+[.!?।]+["')\]]*\s*|[^.!?।]+$/g) || [t];
+  if (sent.length < 3) return [t];
+  let acc = 0, best = 0, bd = 1e9;
+  for (let i = 0; i < sent.length - 1; i++) { acc += sent[i].length; const d = Math.abs(acc - t.length / 2); if (d < bd) { bd = d; best = i; } }
+  return [sent.slice(0, best + 1).join('').trim(), sent.slice(best + 1).join('').trim()];
+};
+// Wraps every mention of the collection name in <b>.
+const boldNames = (txt, names) => {
+  const ns = names.filter(Boolean); if (!ns.length) return txt;
+  const esc = (x) => x.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  const re = new RegExp('(' + ns.map((n) => (/^[\x00-\x7f]+$/.test(n) ? `\\b${esc(n)}\\b` : esc(n))).join('|') + ')', 'gi');
+  return String(txt).split(re).map((x, i) => (i % 2 ? <b key={i}>{x}</b> : x));
+};
+
 export default function PdpClient({ items, startSlug, theme, eyebrow, settings, whatsapp = '', unlockedSlugs = [], wristPhotos = [], col = null, realm = null, showGlow = true, checkout = null, box = '', handPhoto = '', catalog = [] }) {
   const t = useT(); const lang = useLang(); const cn = (x) => (lang === 'hi' ? COLOR_HI[x] || x : x);
   const [slug, setSlug] = useState(startSlug);
@@ -84,6 +101,14 @@ const short = (col?.name && p.name.toUpperCase().startsWith(col.name.toUpperCase
         </div>
       </div>
 
+      {p.images?.[3] && (
+        <section className={`story-screen t-${theme}`}>
+          {showGlow && <Sparkles theme={theme} n={26} />}
+          <img src={opt(p.images[3], 1200, 85)} alt={p.name} loading="lazy" decoding="async" />
+          <div className="ss-line"><div className="ss-k">{p.name}</div><h2 className="ss-h">{p.tagline}</h2><i /></div>
+        </section>
+      )}
+
       {(col?.meaning || realm) && (
         <section className="mean nomark">
           {col?.sanskrit && <div className="sk" {...rv(0)}>{col.sanskrit}</div>}
@@ -98,17 +123,16 @@ const short = (col?.name && p.name.toUpperCase().startsWith(col.name.toUpperCase
           {p.images?.[5] && (<div className={`wr-img t-${theme}`} data-rv>{showGlow && <Sparkles theme={theme} n={22} />}<img src={opt(p.images[5], 1080, 85)} alt={p.name} loading="lazy" decoding="async" /></div>)}
           {col?.story && (
             <section className="mean desc-sm wr-txt">
-              <h3 {...rv(0)}>{lang === 'hi' ? `${col.name} के पीछे का भाव` : `The idea behind ${col.name}`}</h3><p {...rv(1)}>{col.story}</p>
+              <h3 {...rv(0)}>{lang === 'hi' ? `${col.name} के पीछे का भाव` : `The idea behind ${col.name}`}</h3>{split2(col.story).map((x, i) => <p key={i} {...rv(i + 1)}>{boldNames(x, [col.name, col.sanskrit])}</p>)}
             </section>
           )}
         </div>
       )}
 
-      {p.images?.[3] && (<div className={`edge sq fadeends t-${theme}`} data-rv>{showGlow && <Sparkles theme={theme} n={22} />}<img src={opt(p.images[3], 1080, 85)} alt={p.name} loading="lazy" decoding="async" /></div>)}
 
       {(p.long_description || realm) && (
         <section className="mean desc-sm pabout">
-          {p.long_description && (<><h3 {...rv(0)}>{lang === 'hi' ? `${p.name} के विषय में` : `About ${p.name}`}</h3><p {...rv(1)}>{p.long_description}</p></>)}
+          {p.long_description && (<><h3 {...rv(0)}>{lang === 'hi' ? `${p.name} के विषय में` : `About ${p.name}`}</h3>{split2(p.long_description).map((x, i) => <p key={i} {...rv(i + 1)}>{x}</p>)}</>)}
           {realm && (<><h3 {...rv(2)}>{t('The colour')}</h3><p {...rv(3)}>{t(realm.meaning)}</p></>)}
         </section>
       )}
@@ -124,6 +148,7 @@ const short = (col?.name && p.name.toUpperCase().startsWith(col.name.toUpperCase
 
       <InfiniteRow title={t('Recently viewed')} items={recentItems} />
       <InfiniteRow title={t('Related watches')} items={related} />
+      <div className="hair" aria-hidden="true" />
 
       {mounted && createPortal(
       <div className={`sticky-buy ${bar ? 'show' : ''}`} aria-hidden={!bar}>

@@ -5,6 +5,7 @@ import MotionInit from '@/components/MotionInit';
 import Stars from '@/components/Stars';
 import MetaPixel from '@/components/MetaPixel';
 import VisitTracker from '@/components/VisitTracker';
+import CursorRing from '@/components/CursorRing';
 import IntroCurtain from '@/components/IntroCurtain';
 import CartDrawer from '@/components/CartDrawer';
 import { getCollections, getSettings } from '@/lib/data';
@@ -14,6 +15,7 @@ export default async function SiteLayout({ children }) {
   return (
     <>
       <IntroCurtain />
+      <CursorRing />
       <MetaPixel id={settings.meta_pixel_id} />
       <VisitTracker />
       <Stars />

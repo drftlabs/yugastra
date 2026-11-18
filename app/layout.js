@@ -1,4 +1,4 @@
-import { Outfit, Noto_Sans_Devanagari } from 'next/font/google';
+import { Outfit, Noto_Sans_Devanagari, Cormorant_Garamond } from 'next/font/google';
 import './globals.css';
 import ShopProvider from '@/components/ShopProvider';
 import { LangProvider } from '@/components/LangCtx';
@@ -7,6 +7,7 @@ import { headers } from 'next/headers';
 
 const outfit = Outfit({ subsets: ['latin'], variable: '--font-outfit', weight: ['200', '300', '400', '500', '700'] });
 const deva = Noto_Sans_Devanagari({ subsets: ['devanagari'], variable: '--font-deva', weight: ['300', '400', '500'] });
+const serif = Cormorant_Garamond({ subsets: ['latin'], variable: '--font-serif', weight: ['400', '500'], style: ['normal', 'italic'] });
 
 export const metadata = {
   metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || 'https://yugastra.com'),
@@ -22,7 +23,7 @@ export default function Root({ children }) {
   const base = (process.env.NEXT_PUBLIC_SITE_URL || 'https://yugastra.com').replace(/\/$/, '');
   const en = base + (path === '/' ? '' : path), hiu = base + '/hi' + (path === '/' ? '' : path);
   return (
-    <html lang={hi ? 'hi' : 'en'} className={`${outfit.variable} ${deva.variable}`}>
+    <html lang={hi ? 'hi' : 'en'} className={`${outfit.variable} ${deva.variable} ${serif.variable}`}>
       <head>
         {!path.startsWith('/admin') && !path.startsWith('/account') && (<>
           <link rel="alternate" hrefLang="en" href={en} /><link rel="alternate" hrefLang="hi" href={hiu} /><link rel="alternate" hrefLang="x-default" href={en} />

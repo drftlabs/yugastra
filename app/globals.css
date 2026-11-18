@@ -2,7 +2,7 @@
   --ink:#0a0a0a; --ink2:#111; --panel:#171717; --panel2:#1d1d1d;
   --line:rgba(255,255,255,.12); --ivory:#f4efe6; --muted:#a29d92;
   --gold:#dca544; --gold2:#cf8a2c; --gold3:#a8701f; --night:#0a0720; --vio:#6a4dff; --vio2:#9b6bff; --amber:#d9823a; --rose:#c2547a; --void:#04040b; --ember:#c8553d;
-  --f-head:var(--font-outfit),system-ui,sans-serif; --f-body:var(--font-outfit),system-ui,sans-serif; --f-serif:var(--font-outfit),system-ui,sans-serif; --f-deva:var(--font-deva),system-ui,sans-serif;
+  --f-head:var(--font-outfit),system-ui,sans-serif; --f-body:var(--font-outfit),system-ui,sans-serif; --f-serif:var(--font-serif),'Cormorant Garamond',Georgia,serif; --f-deva:var(--font-deva),system-ui,sans-serif;
   --maxw:1320px;
 }
 *{box-sizing:border-box;margin:0;padding:0}
@@ -1330,7 +1330,7 @@ html[lang="hi"] .price-row .wm{font-family:var(--font-deva),'Noto Sans Devanagar
 .pabout{margin-top:6px!important}
 
 /* ================= v24 ================= */
-:root{--ease-royal:cubic-bezier(.22,.61,.2,1);--t-calm:.9s}
+:root{--ease-royal:cubic-bezier(.22,.61,.2,1);--t-calm:1.45s}
 
 /* --- watermark: YUG behind the price, ASTRA behind the short description --- */
 .pw{position:relative}
@@ -1347,12 +1347,12 @@ html[lang="hi"] .pw>.wm span{font-family:var(--font-deva),'Noto Sans Devanagari'
 .hdr .logo{position:relative;display:flex;align-items:center;justify-content:center;padding:8px 22px;margin:-8px -22px;cursor:pointer;-webkit-tap-highlight-color:transparent}
 .lm{position:relative;display:grid;place-items:center}
 .lm>*{grid-area:1/1;transition:opacity 1.3s var(--ease-royal),filter 1.3s var(--ease-royal),transform 1.3s var(--ease-royal)}
-.lm-hi{font-family:var(--font-deva),'Noto Sans Devanagari',var(--f-head),sans-serif;font-weight:500;letter-spacing:.14em;font-size:27px;line-height:1;white-space:nowrap;
+.lm-hi{font-family:var(--font-deva),'Noto Sans Devanagari',var(--f-head),sans-serif;font-weight:500;letter-spacing:0;font-size:29px;line-height:1.1;white-space:nowrap;word-break:keep-all;font-feature-settings:'liga','clig','akhn','half';
   background:var(--gold-grad);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;color:transparent;opacity:0;filter:blur(8px);transform:scale(.94)}
 .lm.is-hi .lm-en{opacity:0;filter:blur(8px);transform:scale(1.04)}
 .lm.is-hi .lm-hi{opacity:1;filter:blur(0);transform:none}
-@media(max-width:960px){.lm-hi{font-size:23px}}
-@media(max-width:700px){.lm-hi{font-size:17px;letter-spacing:.1em}}
+@media(max-width:960px){.lm-hi{font-size:25px}}
+@media(max-width:700px){.lm-hi{font-size:19px;letter-spacing:0}}
 .hdr .logo:hover .lm{filter:drop-shadow(0 0 14px rgba(255,190,90,.35))}
 .lm{transition:filter .6s var(--ease-royal)}
 
@@ -1367,12 +1367,12 @@ html[lang="hi"] .pw>.wm span{font-family:var(--font-deva),'Noto Sans Devanagari'
 html.intro-on body{overflow:hidden}
 
 /* --- staged entrance: header, then hero/content --- */
-.hdr{animation:stageIn 1.1s var(--ease-royal) .1s both}
-@keyframes stageIn{from{opacity:0;transform:translateY(-8px)}to{opacity:1;transform:none}}
+.hdr{animation:stageIn 1.3s var(--ease-royal) .25s both}
+@keyframes stageIn{from{opacity:0;transform:translateY(-16px)}to{opacity:1;transform:none}}
 
 /* --- gold hairlines that draw themselves --- */
 .mean,.feat,.specs,.pdp-details{border-top-color:transparent!important;position:relative}
-.mean:before,.feat:before,.specs:before,.pdp-details:before{content:"";position:absolute;left:0;right:0;top:0;height:1px;background:linear-gradient(90deg,transparent,rgba(245,176,74,.55) 18%,rgba(255,226,150,.8) 50%,rgba(245,176,74,.55) 82%,transparent);transform:scaleX(0);transform-origin:center;transition:transform 1.6s var(--ease-royal) .15s}
+.mean:before,.feat:before,.specs:before,.pdp-details:before{content:"";position:absolute;left:0;right:0;top:0;height:1px;background:linear-gradient(90deg,transparent,rgba(245,176,74,.55) 18%,rgba(255,226,150,.8) 50%,rgba(245,176,74,.55) 82%,transparent);transform:scaleX(0);transform-origin:center;transition:transform 1.9s var(--ease-royal) .2s}
 .mean.hl:before,.feat.hl:before,.specs.hl:before,.pdp-details.hl:before{transform:scaleX(1)}
 .eyebrow{position:relative}
 
@@ -1382,11 +1382,87 @@ html.intro-on body{overflow:hidden}
 @media(hover:hover){.btn:hover:after,.ccard:hover .art:after,.pcard:hover:after,.cs-card:hover:after{left:130%}}
 
 /* --- depth: very slow parallax on wide photos --- */
-.edge img{will-change:transform;transform:translate3d(0,var(--py,0px),0) scale(1.05)}
 
 /* --- calmer motion: longer, no bounce, one shared curve --- */
 .js [data-rv]{transition:opacity var(--t-calm) var(--ease-royal) var(--d,0ms),transform var(--t-calm) var(--ease-royal) var(--d,0ms)!important}
-.js .pdp-page [data-rv]{transition-duration:.9s!important}
+
 .ccard,.pcard,.btn,.link-arrow{transition-duration:.7s;transition-timing-function:var(--ease-royal)}
 .page-in{animation-duration:.7s!important}
-@media(prefers-reduced-motion:reduce){.hdr{animation:none}.lm>*{transition:none}.edge img{transform:none}.intro{display:none}}
+@media(prefers-reduced-motion:reduce){.hdr{animation:none}.lm>*{transition:none}.intro{display:none}}
+
+/* ================= v25 ================= */
+/* calmer, more noticeable reveals: later trigger, longer travel, softer stagger */
+.js [data-rv],.js .pdp-page [data-rv]{transform:translateY(46px);transition:opacity var(--t-calm) var(--ease-royal) calc(var(--d,0ms)*1.6),transform var(--t-calm) var(--ease-royal) calc(var(--d,0ms)*1.6)!important}
+.js [data-rv].in,.js .pdp-page [data-rv].in{opacity:1;transform:none}
+/* the .mean hairline is drawn by :before now, so drop the static one */
+.mean,.mean.nomark,.mean.desc-sm{background-image:none!important}
+/* breathing room around hairlines */
+.wrow .wr-txt{margin-top:34px!important}
+@media(min-width:861px){.wrow.has .wr-txt{margin-top:0!important}.wrow.has .wr-txt:before{display:none}}
+.mean.desc-sm.pabout{margin-top:40px!important;padding-top:34px!important}
+.pdp-details{margin-top:40px!important;padding-top:36px!important}
+.pdp-details .assure{margin:0 0 36px!important}
+.mean.desc-sm p+p{margin-top:1.15em}
+.mean.desc-sm p b{font-weight:700;color:#fff;letter-spacing:.04em}
+/* a hairline that closes the page body (after Related watches) */
+.hair{height:1px;max-width:min(1100px,86vw);margin:56px auto 0;background:linear-gradient(90deg,transparent,rgba(245,176,74,.55) 18%,rgba(255,226,150,.8) 50%,rgba(245,176,74,.55) 82%,transparent);transform:scaleX(0);transition:transform 1.9s var(--ease-royal) .2s}
+.hair.hl{transform:scaleX(1)}
+/* product photos melt into the page from the bottom only */
+.pdp-page .wr-img img,.pdp-page .edge:not(.fadeends) img{-webkit-mask-image:linear-gradient(180deg,#000 0,#000 84%,transparent 100%);mask-image:linear-gradient(180deg,#000 0,#000 84%,transparent 100%)}
+/* checkout opening: the room dims, the panel rises out of a blur and a gold line is drawn across it */
+.co-modal{animation:coBack .7s var(--ease-royal) both}
+.co-panel{animation:coRise 1s var(--ease-royal) .08s both}
+.co-panel:before{content:"";position:absolute;left:8%;right:8%;top:0;height:1px;background:linear-gradient(90deg,transparent,#ffd98a,transparent);transform:scaleX(0);animation:coLine 1.4s var(--ease-royal) .5s forwards}
+@keyframes coBack{from{opacity:0;background:rgba(0,0,0,0)}to{opacity:1}}
+@keyframes coRise{from{opacity:0;transform:translateY(46px) scale(.975);filter:blur(8px)}to{opacity:1;transform:none;filter:none}}
+@keyframes coLine{to{transform:scaleX(1)}}
+/* small refinements */
+html{scroll-behavior:smooth}
+::selection{background:rgba(245,176,74,.35);color:#fff}
+@media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}.co-modal,.co-panel,.co-panel:before{animation:none}.co-panel:before{transform:scaleX(1)}.js [data-rv],.js .pdp-page [data-rv]{transform:none}}
+
+/* ================= v26 ================= */
+/* serif accents: taglines and the collection headline */
+.ptag{font-style:italic;font-size:1.32em;letter-spacing:.02em;font-weight:500}
+html[lang="hi"] .ptag{font-family:var(--font-deva),sans-serif;font-style:normal;font-size:1.05em;letter-spacing:0}
+
+/* storytelling screen: one full screen, the 3/4 photo, one line */
+.story-screen{position:relative;margin:56px calc(50% - 50vw) 0;width:100vw;min-height:100vh;min-height:100svh;display:grid;place-items:center;overflow:hidden;
+  background:radial-gradient(ellipse at 50% 44%,color-mix(in srgb,var(--c1,#27408a) 30%,transparent),transparent 64%)}
+.story-screen .sparkles{z-index:0}
+.story-screen img{position:relative;z-index:1;width:min(94vw,880px);max-height:80vh;object-fit:contain;
+  -webkit-mask-image:linear-gradient(180deg,transparent 0,#000 15%,#000 85%,transparent 100%);mask-image:linear-gradient(180deg,transparent 0,#000 15%,#000 85%,transparent 100%)}
+.ss-line{position:absolute;z-index:2;left:0;right:0;bottom:calc(9vh + 56px);text-align:center;padding:0 28px}
+.ss-k{font-size:11px;letter-spacing:.42em;color:var(--gold);text-transform:uppercase}
+.ss-h{font-family:var(--f-serif);font-style:italic;font-weight:400;text-transform:none;letter-spacing:.01em;font-size:clamp(28px,6.4vw,54px);line-height:1.15;margin:16px auto 0;max-width:15em;color:#fff;text-shadow:0 2px 30px rgba(0,0,0,.85)}
+html[lang="hi"] .ss-h{font-family:var(--font-deva),sans-serif;font-style:normal;font-size:clamp(24px,5.4vw,44px);letter-spacing:0;line-height:1.35}
+.ss-line i{display:block;height:1px;width:min(300px,56vw);margin:26px auto 0;background:linear-gradient(90deg,transparent,#f5b04a,#ffe29a,#f5b04a,transparent)}
+.js .story-screen:not(.hl) img{opacity:0;transform:scale(1.06)}
+.js .story-screen img{transition:opacity 2s var(--ease-royal),transform 2.6s var(--ease-royal)}
+.js .story-screen:not(.hl) .ss-k,.js .story-screen:not(.hl) .ss-h{opacity:0;transform:translateY(22px)}
+.js .story-screen .ss-k{transition:opacity 1.6s var(--ease-royal) .9s,transform 1.6s var(--ease-royal) .9s}
+.js .story-screen .ss-h{transition:opacity 2s var(--ease-royal) 1.3s,transform 2s var(--ease-royal) 1.3s}
+.js .story-screen:not(.hl) .ss-line i{transform:scaleX(0)}
+.js .story-screen .ss-line i{transition:transform 2.2s var(--ease-royal) 2s}
+.story-screen:before,.story-screen:after{display:none}
+
+/* more air: wider spacing, narrower text column */
+.mean h3,.mean .eyebrow{letter-spacing:.42em}
+.label-sm{letter-spacing:.3em}
+.mean.desc-sm.pabout{max-width:600px;margin-left:auto!important;margin-right:auto!important;margin-top:72px!important}
+.mean.desc-sm p{line-height:2.05}
+.pdp-details{margin-top:72px!important}
+.irow{margin-top:72px}
+.dlv-by,.specs>div>span:first-child{letter-spacing:.26em}
+.specs>div{padding-top:15px;padding-bottom:15px}
+
+/* ornament on the closing hairline */
+.hair{position:relative;overflow:visible}
+.hair:after{content:"";position:absolute;left:50%;top:50%;width:7px;height:7px;background:#ffd98a;transform:translate(-50%,-50%) rotate(45deg) scale(0);box-shadow:0 0 0 5px #05050a,0 0 14px rgba(255,200,100,.6);transition:transform 1s var(--ease-royal) 1.8s}
+.hair.hl:after{transform:translate(-50%,-50%) rotate(45deg) scale(1)}
+
+/* cursor ring (desktop) */
+.cring{position:fixed;left:0;top:0;z-index:999;width:34px;height:34px;border:1px solid rgba(245,176,74,.7);border-radius:50%;pointer-events:none;opacity:0;transition:opacity .4s,width .4s var(--ease-royal),height .4s var(--ease-royal),background .4s;mix-blend-mode:normal}
+.cring.show{opacity:1}
+.cring.big{width:62px;height:62px;background:rgba(245,176,74,.08)}
+@media(hover:none),(pointer:coarse){.cring{display:none}}
