@@ -45,7 +45,8 @@ export default function PdpClient({ items, startSlug, theme, eyebrow, settings, 
     if (m) { setSlug(m.slug); try { history.replaceState(null, '', pre(lang, `/products/${m.slug}`)); document.title = m.seo_title || m.name; } catch {} }
   };
   const save = p.compare_price && p.compare_price > p.price ? Math.round((1 - p.price / p.compare_price) * 100) : 0;
-  const feats = Array.isArray(p.features) ? p.features : [];
+  const feats = (Array.isArray(p.features) ? p.features : []).filter((f) => !/quartz|movement|warranty|water|resistan|\bcase\b|strap|weight|size|mm\b/i.test(f) && !/dial/i.test(f));
+  const dialFeat = (Array.isArray(p.features) ? p.features : []).find((f) => /dial/i.test(f));
   const mode = p.stock_mode || 'in_stock';
   const gated = mode === 'waitlist' && !open.includes(p.slug);
 const short = (col?.name && p.name.toUpperCase().startsWith(col.name.toUpperCase()) ? p.name.slice(col.name.length).trim() : p.name) || p.name;
@@ -63,8 +64,7 @@ const short = (col?.name && p.name.toUpperCase().startsWith(col.name.toUpperCase
         <div className="pdp-info">
           {eyebrow && <div className="eyebrow">{eyebrow}</div>}
           <h1>{p.name}</h1><div className="serif ptag">{p.tagline}</div>
-          <div className="price big">{inr(p.price)}{p.compare_price ? <s>{inr(p.compare_price)}</s> : null}{save ? <span className="save">{save}% {t('off')}</span> : null}</div>
-          <p className="desc">{p.description}</p>
+          <div className="pw"><div className="wm" aria-hidden="true"><span className="w1">{lang === 'hi' ? 'युग' : 'YUG'}</span><span className="w2">{lang === 'hi' ? 'अस्त्र' : 'ASTRA'}</span></div><div className="price-row"><div className="price big">{inr(p.price)}{p.compare_price ? <s>{inr(p.compare_price)}</s> : null}{save ? <span className="save">{save}% {t('off')}</span> : null}</div></div><p className="desc">{p.description}</p></div>
           {cases.length > 1 && (<>
             <span className="label-sm">{t('Case')} · {cn(p.case_color)}</span>
             <div className="chips">{cases.map((c) => (
@@ -89,27 +89,35 @@ const short = (col?.name && p.name.toUpperCase().startsWith(col.name.toUpperCase
           {col?.sanskrit && <div className="sk" {...rv(0)}>{col.sanskrit}</div>}
           <div className="eyebrow" style={{ marginBottom: 8, '--d': '90ms' }} data-rv>{t('What it means')}</div>
           {col?.meaning && <div className="ml" {...rv(2)}>{col.meaning}</div>}
-          {realm && <div className="ml" style={{ marginTop: 10, color: 'var(--gold)', '--d': '270ms' }} data-rv>{t(realm.realm)} · {t(realm.colour)}</div>}
+          {realm && <div className="ml" style={{ marginTop: 10, color: 'var(--gold)', '--d': '270ms' }} data-rv>{t(realm.realm)}</div>}
         </section>
       )}
 
-      <div className={`wrow ${p.images?.[5] ? 'has' : ''}`}>
-        {p.images?.[5] && (<div className={`wr-img t-${theme}`} data-rv>{showGlow && <Sparkles theme={theme} n={22} />}<img src={opt(p.images[5], 1080, 85)} alt={p.name} loading="lazy" decoding="async" /></div>)}
-        {(p.long_description || realm) && (
-          <section className="mean desc-sm wr-txt">
-            {p.long_description && (<><h3 {...rv(0)}>{lang === 'hi' ? `${p.name} के विषय में` : `About ${p.name}`}</h3><p {...rv(1)}>{p.long_description}</p></>)}
-            {realm && (<><h3 {...rv(2)}>{t('The colour')}</h3><p {...rv(3)}>{t(realm.meaning)}</p></>)}
-          </section>
-        )}
-      </div>
+      {(col?.story || p.images?.[5]) && (
+        <div className={`wrow ${p.images?.[5] ? 'has' : ''}`}>
+          {p.images?.[5] && (<div className={`wr-img t-${theme}`} data-rv>{showGlow && <Sparkles theme={theme} n={22} />}<img src={opt(p.images[5], 1080, 85)} alt={p.name} loading="lazy" decoding="async" /></div>)}
+          {col?.story && (
+            <section className="mean desc-sm wr-txt">
+              <h3 {...rv(0)}>{lang === 'hi' ? `${col.name} के पीछे का भाव` : `The idea behind ${col.name}`}</h3><p {...rv(1)}>{col.story}</p>
+            </section>
+          )}
+        </div>
+      )}
 
-      {p.images?.[3] && (<div className={`edge sq t-${theme}`} data-rv>{showGlow && <Sparkles theme={theme} n={22} />}<img src={opt(p.images[3], 1080, 85)} alt={p.name} loading="lazy" decoding="async" /></div>)}
+      {p.images?.[3] && (<div className={`edge sq fadeends t-${theme}`} data-rv>{showGlow && <Sparkles theme={theme} n={22} />}<img src={opt(p.images[3], 1080, 85)} alt={p.name} loading="lazy" decoding="async" /></div>)}
+
+      {(p.long_description || realm) && (
+        <section className="mean desc-sm pabout">
+          {p.long_description && (<><h3 {...rv(0)}>{lang === 'hi' ? `${p.name} के विषय में` : `About ${p.name}`}</h3><p {...rv(1)}>{p.long_description}</p></>)}
+          {realm && (<><h3 {...rv(2)}>{t('The colour')}</h3><p {...rv(3)}>{t(realm.meaning)}</p></>)}
+        </section>
+      )}
 
       <section className="pdp-details">
         <div className="assure" data-rv><div>{lang === 'hi' ? <>एक वर्ष की<br />वारंटी</> : <>1-year<br />warranty</>}</div><div>{lang === 'hi' ? <>जापानी<br />क्वार्ट्ज़</> : <>Japanese<br />quartz</>}</div><div>{lang === 'hi' ? <>{settings.return_days} दिन में<br />वापसी</> : <>{settings.return_days}-day<br />returns</>}</div></div>
         {!!feats.length && <ul className="feats">{feats.map((f, n) => <li key={f} {...rv(n)}>{lang === 'hi' ? hiText(f) : f}</li>)}</ul>}
         <div className="specs">
-          {Object.entries(p.specs || {}).filter(([k]) => noDim(k)).map(([k, v], n) => <div key={k} {...rv(n)}><span>{t(k)}</span><span>{lang === 'hi' ? hiText(v) : String(v)}</span></div>)}
+          {Object.entries(p.specs || {}).filter(([k]) => noDim(k)).map(([k, v]) => [k, k === 'Dial' && dialFeat ? dialFeat : v]).map(([k, v], n) => <div key={k} {...rv(n)}><span>{t(k)}</span><span>{lang === 'hi' ? hiText(v) : String(v)}</span></div>)}
           <div><span>{t('Delivery')}</span><span>{lang === 'hi' ? String(settings.delivery_days).replace('business days', 'कार्य-दिवस') : settings.delivery_days}</span></div>
         </div>
       </section>
@@ -117,11 +125,6 @@ const short = (col?.name && p.name.toUpperCase().startsWith(col.name.toUpperCase
       <InfiniteRow title={t('Recently viewed')} items={recentItems} />
       <InfiniteRow title={t('Related watches')} items={related} />
 
-      {col?.story && (
-        <section className="mean desc-sm brand">
-          <h3 {...rv(0)}>{lang === 'hi' ? `${col.name} के पीछे का भाव` : `The idea behind ${col.name}`}</h3><p {...rv(1)}>{col.story}</p>
-        </section>
-      )}
       {mounted && createPortal(
       <div className={`sticky-buy ${bar ? 'show' : ''}`} aria-hidden={!bar}>
         <div className="sb-in">

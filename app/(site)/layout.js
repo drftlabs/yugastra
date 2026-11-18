@@ -5,6 +5,7 @@ import MotionInit from '@/components/MotionInit';
 import Stars from '@/components/Stars';
 import MetaPixel from '@/components/MetaPixel';
 import VisitTracker from '@/components/VisitTracker';
+import IntroCurtain from '@/components/IntroCurtain';
 import CartDrawer from '@/components/CartDrawer';
 import { getCollections, getSettings } from '@/lib/data';
 
@@ -12,6 +13,7 @@ export default async function SiteLayout({ children }) {
   const [collections, settings] = await Promise.all([getCollections(), getSettings()]);
   return (
     <>
+      <IntroCurtain />
       <MetaPixel id={settings.meta_pixel_id} />
       <VisitTracker />
       <Stars />
