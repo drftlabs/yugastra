@@ -6,6 +6,8 @@ import PdpBuy from '@/components/PdpBuy';
 import { opt } from '@/lib/img';
 import Sparkles from '@/components/Sparkles';
 import Tags from '@/components/Tags';
+import Quotes from '@/components/Quotes';
+import { REVIEWS } from '@/lib/reviews';
 import InfiniteRow from '@/components/InfiniteRow';
 import Delivery from '@/components/Delivery';
 import WaitlistBox from '@/components/WaitlistBox';
@@ -84,16 +86,16 @@ const short = (col?.name && p.name.toUpperCase().startsWith(col.name.toUpperCase
           <div className="pw"><div className="wm" aria-hidden="true"><span className="w1">{lang === 'hi' ? 'युग' : 'YUG'}</span><span className="w2">{lang === 'hi' ? 'अस्त्र' : 'ASTRA'}</span></div><div className="price-row"><div className="price big">{inr(p.price)}{p.compare_price ? <s>{inr(p.compare_price)}</s> : null}{save ? <span className="save">{save}% {t('off')}</span> : null}</div></div><p className="desc">{p.description}</p></div>
           {cases.length > 1 && (<>
             <span className="label-sm">{t('Case')} · {cn(p.case_color)}</span>
-            <div className="chips">{cases.map((c) => (
-              <button key={c} type="button" className={`chip ${c === p.case_color ? 'on' : ''}`} onClick={() => pick(c, p.strap_color)} aria-pressed={c === p.case_color}>
-                <span className="sw" style={{ background: CASE_HEX[c] || '#888' }} />{cn(c)}
+            <div className="swrow">{cases.map((c) => (
+              <button key={c} type="button" className={`swr ${c === p.case_color ? 'on' : ''}`} onClick={() => pick(c, p.strap_color)} aria-pressed={c === p.case_color} aria-label={cn(c)} title={cn(c)}>
+                <span style={{ background: CASE_HEX[c] || '#888' }} />
               </button>))}</div></>)}
           {straps.length > 1 && (<>
             <span className="label-sm">{t('Strap')} · {cn(p.strap_color)}</span>
-            <div className="chips">{straps.map((s) => {
+            <div className="swrow">{straps.map((s) => {
               const ok = !!has(p.case_color, s);
-              return (<button key={s} type="button" className={`chip ${s === p.strap_color ? 'on' : ''} ${ok ? '' : 'dim'}`} onClick={() => pick(p.case_color, s)} aria-pressed={s === p.strap_color}>
-                <span className="sw" style={{ background: STRAP_HEX[s] || '#888' }} />{cn(s)}
+              return (<button key={s} type="button" className={`swr ${s === p.strap_color ? 'on' : ''} ${ok ? '' : 'dim'}`} onClick={() => pick(p.case_color, s)} aria-pressed={s === p.strap_color} aria-label={cn(s)} title={cn(s)}>
+                <span style={{ background: STRAP_HEX[s] || '#888' }} />
               </button>);
             })}</div></>)}
           <div id="pdp-buy">{mode === 'waitlist' && gated ? <WaitlistBox p={p} whatsapp={whatsapp} unlocked={false} onUnlock={(s) => setOpen([...open, s])} /> : <PdpBuy p={buyP} theme={theme} onBuyNow={checkout ? () => setCo(true) : undefined} />}</div>
@@ -138,7 +140,7 @@ const short = (col?.name && p.name.toUpperCase().startsWith(col.name.toUpperCase
       )}
 
       <section className="pdp-details">
-        <div className="assure" data-rv><div>{lang === 'hi' ? <>एक वर्ष की<br />वारंटी</> : <>1-year<br />warranty</>}</div><div>{lang === 'hi' ? <>जापानी<br />क्वार्ट्ज़</> : <>Japanese<br />quartz</>}</div><div>{lang === 'hi' ? <>{settings.return_days} दिन में<br />वापसी</> : <>{settings.return_days}-day<br />returns</>}</div></div>
+        <div className="engr" data-rv><div><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.1" strokeLinecap="round" strokeLinejoin="round"><path d="M12 3l7 3v6c0 4.5-3 7.6-7 9-4-1.4-7-4.5-7-9V6l7-3z"/><path d="M9 12l2.2 2.2L15.5 10"/></svg><span>{lang === 'hi' ? 'एक वर्ष की वारंटी' : '1-year warranty'}</span></div><div><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.1" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="8.5"/><path d="M12 7v5l3 2"/></svg><span>{lang === 'hi' ? 'जापानी क्वार्ट्ज़' : 'Japanese quartz'}</span></div><div><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.1" strokeLinecap="round" strokeLinejoin="round"><path d="M4 12a8 8 0 1 0 2.6-5.9"/><path d="M4 4v4h4"/></svg><span>{lang === 'hi' ? `${settings.return_days} दिन में वापसी` : `${settings.return_days}-day returns`}</span></div></div>
         {!!feats.length && <ul className="feats">{feats.map((f, n) => <li key={f} {...rv(n)}>{lang === 'hi' ? hiText(f) : f}</li>)}</ul>}
         <div className="specs">
           {Object.entries(p.specs || {}).filter(([k]) => noDim(k)).map(([k, v]) => [k, k === 'Dial' && dialFeat ? dialFeat : v]).map(([k, v], n) => <div key={k} {...rv(n)}><span>{t(k)}</span><span>{lang === 'hi' ? hiText(v) : String(v)}</span></div>)}
@@ -147,6 +149,7 @@ const short = (col?.name && p.name.toUpperCase().startsWith(col.name.toUpperCase
       </section>
 
       <InfiniteRow title={t('Recently viewed')} items={recentItems} />
+      <Quotes items={REVIEWS.filter((r) => !r.slug || r.slug === p.slug)} />
       <InfiniteRow title={t('Related watches')} items={related} />
       <div className="hair" aria-hidden="true" />
 

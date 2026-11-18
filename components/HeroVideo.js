@@ -1,7 +1,9 @@
 'use client';
 import { useEffect, useRef } from 'react';
+import { useT } from '@/components/L';
 // Home hero: one looping video, no controls, text or overlays. Wide version on desktop, square on phones.
 export default function HeroVideo() {
+  const t = useT();
   const sq = useRef(null); const wd = useRef(null);
   useEffect(() => {
     const mq = window.matchMedia('(min-width: 900px)');
@@ -19,6 +21,7 @@ export default function HeroVideo() {
     <section className="hero-vid" aria-label="YUGASTRA">
       <video ref={sq} className="hv-sq" data-src="/hero.mp4" poster="/hero-poster.jpg" onPause={keep} {...common} />
       <video ref={wd} className="hv-wd" data-src="/hero-wide.mp4" poster="/hero-wide-poster.jpg" onPause={keep} {...common} />
+      <div className="hv-line" aria-hidden="true"><span>{t('Time begins where the light does.')}</span></div>
     </section>
   );
 }

@@ -4,7 +4,6 @@ import HeroVideo from '@/components/HeroVideo';
 import NameNote from '@/components/NameNote';
 import RealmQuiz from '@/components/RealmQuiz';
 import DetailGallery from '@/components/DetailGallery';
-import OrbScene from '@/components/OrbScene';
 import InfiniteRow from '@/components/InfiniteRow';
 import CollectionSlider from '@/components/CollectionSlider';
 import { REALMS, SKT } from '@/lib/brand';
@@ -41,7 +40,7 @@ export default async function Home() {
         return { slug: c.slug, name: c.name, theme: c.theme, sanskrit: c.sanskrit || SKT[c.theme], realm: REALMS[c.theme] ? t(REALMS[c.theme].realm) : `${c.name} ${t('collection')}`, headline: c.headline || c.tagline, description: c.description, image: c.banner || imgs[`realm_${c.theme}`]?.image || pr?.images?.[0] || '' };
       })} />
 
-      <InfiniteRow title={t('New & bestsellers')} items={tagged} />
+      <InfiniteRow big title={t('New & bestsellers')} items={tagged} />
 
       <RealmQuiz collections={collections} />
 
@@ -56,11 +55,11 @@ export default async function Home() {
         </div>
       </section>
 
-      <section className="closing">
-        <OrbScene />
-        <div className="eyebrow" data-rv>{t('Yugastra · the weapon of timelessness')}</div>
-        <blockquote data-rv>{t('We do not make watches to be replaced. We make pieces to be')} <em>{t('kept')}</em>{t(', and a feeling that stays with them.')}</blockquote>
-        <Link href="/collections" className="btn" data-rv>{t('Discover the collections →')}</Link>
+      <section className="quiet-close">
+        <img src="/logo.png" alt="YUGASTRA" loading="lazy" decoding="async" data-rv />
+        <i className="qc-rule" data-rv />
+        <p data-rv>{t('The weapon of timelessness.')}</p>
+        <Link href="/collections" className="link-arrow" data-rv>{t('Discover the collections →')}</Link>
       </section>
     </>
   );

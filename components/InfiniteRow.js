@@ -5,13 +5,13 @@ import Tags from '@/components/Tags';
 import { useT } from '@/components/L';
 const inr = (n) => '₹' + Number(n || 0).toLocaleString('en-IN');
 // Continuous, endless slider: the row drifts left forever and loops seamlessly. Pauses on touch / hover.
-export default function InfiniteRow({ title, items = [] }) {
+export default function InfiniteRow({ title, items = [], big = false }) {
   const t = useT();
   if (!items.length) return null;
   let base = items; while (base.length < 10) base = [...base, ...items];
   const loop = [...base, ...base];
   return (
-    <section className="irow" data-rv>
+    <section className={`irow ${big ? 'big' : ''}`} data-rv>
       <h3 className="prow-h">{title}</h3>
       <div className="irow-win">
         <div className="irow-track" style={{ '--n': base.length }}>
