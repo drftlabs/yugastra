@@ -7,7 +7,6 @@ import { opt } from '@/lib/img';
 import Sparkles from '@/components/Sparkles';
 import Tags from '@/components/Tags';
 import Quotes from '@/components/Quotes';
-import { REVIEWS } from '@/lib/reviews';
 import InfiniteRow from '@/components/InfiniteRow';
 import Delivery from '@/components/Delivery';
 import WaitlistBox from '@/components/WaitlistBox';
@@ -37,7 +36,7 @@ const boldNames = (txt, names) => {
   return String(txt).split(re).map((x, i) => (i % 2 ? <b key={i}>{x}</b> : x));
 };
 
-export default function PdpClient({ items, startSlug, theme, eyebrow, settings, whatsapp = '', unlockedSlugs = [], wristPhotos = [], col = null, realm = null, showGlow = true, checkout = null, box = '', handPhoto = '', catalog = [] }) {
+export default function PdpClient({ reviews = [], items, startSlug, theme, eyebrow, settings, whatsapp = '', unlockedSlugs = [], wristPhotos = [], col = null, realm = null, showGlow = true, checkout = null, box = '', handPhoto = '', catalog = [] }) {
   const t = useT(); const lang = useLang(); const cn = (x) => (lang === 'hi' ? COLOR_HI[x] || x : x);
   const [slug, setSlug] = useState(startSlug);
   const bar = true; const [co, setCo] = useState(false);
@@ -120,17 +119,25 @@ const short = (col?.name && p.name.toUpperCase().startsWith(col.name.toUpperCase
         </section>
       )}
 
-      {(col?.story || p.images?.[5]) && (
-        <div className={`wrow ${p.images?.[5] ? 'has' : ''}`}>
-          {p.images?.[5] && (<div className={`wr-img t-${theme}`} data-rv>{showGlow && <Sparkles theme={theme} n={22} />}<img src={opt(p.images[5], 1080, 85)} alt={p.name} loading="lazy" decoding="async" /></div>)}
-          {col?.story && (
-            <section className="mean desc-sm wr-txt">
-              <h3 {...rv(0)}>{lang === 'hi' ? `${col.name} के पीछे का भाव` : `The idea behind ${col.name}`}</h3>{split2(col.story).map((x, i) => <p key={i} {...rv(i + 1)}>{boldNames(x, [col.name, col.sanskrit])}</p>)}
-            </section>
-          )}
+      {p.images?.[1] && (
+        <div className="wrow solo">
+          <div className={`wr-img t-${theme}`} data-rv>{showGlow && <Sparkles theme={theme} n={22} />}<img src={opt(p.images[1], 1080, 85)} alt={p.name} loading="lazy" decoding="async" /></div>
         </div>
       )}
 
+      {col?.story && (
+        <div className="wrow">
+          <section className="mean desc-sm wr-txt">
+            <h3 {...rv(0)}>{lang === 'hi' ? `${col.name} के पीछे का भाव` : `The idea behind ${col.name}`}</h3>{split2(col.story).map((x, i) => <p key={i} {...rv(i + 1)}>{boldNames(x, [col.name, col.sanskrit])}</p>)}
+          </section>
+        </div>
+      )}
+
+      {p.images?.[5] && (
+        <div className="wrow solo">
+          <div className={`wr-img t-${theme}`} data-rv>{showGlow && <Sparkles theme={theme} n={22} />}<img src={opt(p.images[5], 1080, 85)} alt={p.name} loading="lazy" decoding="async" /></div>
+        </div>
+      )}
 
       {(p.long_description || realm) && (
         <section className="mean desc-sm pabout">
@@ -149,7 +156,7 @@ const short = (col?.name && p.name.toUpperCase().startsWith(col.name.toUpperCase
       </section>
 
       <InfiniteRow title={t('Recently viewed')} items={recentItems} />
-      <Quotes items={REVIEWS.filter((r) => !r.slug || r.slug === p.slug)} />
+      <Quotes items={(reviews || []).map((r) => { const [nm, ct] = String(r.name || '').split(' · '); return { name: nm, city: ct, quote: r.body }; })} />
       <InfiniteRow title={t('Related watches')} items={related} />
       <div className="hair" aria-hidden="true" />
 

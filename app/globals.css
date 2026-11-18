@@ -1571,3 +1571,24 @@ html[lang="hi"] .inv-h{font-family:var(--font-deva),sans-serif;font-style:normal
 .inv-card .circ-f button{margin-top:10px}
 .circ-form{display:none}
 .inv-card .circ-f button{background-image:var(--gold-grad)!important;color:#14100a!important;border-color:transparent!important;font-weight:700}
+
+/* ================= v30 ================= */
+/* storytelling screen: photo first, then the text and the line below it */
+.story-screen{display:flex;flex-direction:column;align-items:center;justify-content:flex-start;min-height:0;padding:8vh 0 76px}
+.story-screen img{max-height:62vh}
+.ss-line{position:relative;left:auto;right:auto;bottom:auto;margin-top:8px}
+/* macro, idea, wrist: separate full-width blocks */
+.wrow.solo{margin-top:40px}
+
+/* side menu: three quarters of the screen, cross on top, tap outside to close */
+.mm-wrap{position:fixed;inset:0;z-index:500;pointer-events:none;visibility:hidden;transition:visibility 0s linear .6s}
+.mm-wrap.open{pointer-events:auto;visibility:visible;transition-delay:0s}
+.mm-ov{position:absolute;inset:0;background:rgba(0,0,0,.62);opacity:0;transition:opacity .55s var(--ease-royal)}
+.mm-wrap.open .mm-ov{opacity:1}
+.mm-panel{position:absolute;top:0;left:0;bottom:0;width:75vw;max-width:380px;background:#0a0a12;border-right:1px solid rgba(255,255,255,.08);padding:84px 26px 40px;overflow-y:auto;transform:translateX(-102%);transition:transform .6s var(--ease-royal);box-shadow:24px 0 60px rgba(0,0,0,.55)}
+.mm-wrap.open .mm-panel{transform:none}
+.mm-x{position:absolute;top:18px;right:18px;width:40px;height:40px;display:grid;place-items:center;background:none;border:0;color:var(--ivory);font-size:20px;cursor:pointer}
+.mm-panel h4{font-family:var(--f-head);font-size:11px;letter-spacing:.35em;color:var(--au,var(--gold));margin:26px 0 8px;text-transform:uppercase;font-weight:400}
+.mm-panel h4:first-of-type{margin-top:6px}
+.mm-panel a{display:block;padding:9px 0;font-size:19px;font-family:var(--f-head);font-weight:300;letter-spacing:.06em}
+@media(min-width:961px){.mm-wrap{display:none}}

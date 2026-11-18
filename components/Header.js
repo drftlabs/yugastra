@@ -1,6 +1,7 @@
 'use client';
 import Link from '@/components/L';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { useShop } from '@/components/ShopProvider';
 import { useT } from '@/components/L';
 import LangSwitch from '@/components/LangSwitch';
@@ -12,6 +13,14 @@ const User = () => <svg width="20" height="20" viewBox="0 0 24 24" fill="none" s
 export default function Header({ collections = [] }) {
   const { count, setOpen } = useShop(); const t = useT();
   const [mm, setMm] = useState(false);
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => setMounted(true), []);
+  useEffect(() => {
+    if (!mm) return;
+    const prev = document.body.style.overflow; document.body.style.overflow = 'hidden';
+    const k = (e) => e.key === 'Escape' && setMm(false); window.addEventListener('keydown', k);
+    return () => { document.body.style.overflow = prev; window.removeEventListener('keydown', k); };
+  }, [mm]);
   const close = () => setMm(false);
   return (
     <header className="hdr">
@@ -32,12 +41,17 @@ export default function Header({ collections = [] }) {
           <button className="icon-btn" onClick={() => setOpen(true)} aria-label="Bag"><Bag />{count > 0 && <span className="badge">{count}</span>}</button>
         </div>
       </div>
-      <div className={`mobile-menu ${mm ? 'open' : ''}`}>
-        <button className="icon-btn mm-close" onClick={close}>✕</button>
-        <h4>{t('Timepieces')}</h4>{collections.map((c) => <Link key={c.id} href={`/collections/${c.slug}`} onClick={close}>{c.name}</Link>)}<Link href="/collections" onClick={close}>{t('All timepieces')}</Link>
-        <h4>{t('Discover')}</h4><Link href="/our-story" onClick={close}>{t('Our story')}</Link><Link href="/heritage" onClick={close}>{t('Heritage')}</Link><Link href="/journal" onClick={close}>{t('Journal')}</Link><Link href="/circle" onClick={close}>{t('The Circle')}</Link><Link href="/#realm" onClick={close}>{t('Find your realm')}</Link><Link href="/policies/warranty" onClick={close}>{t('1-year warranty')}</Link>
-        <h4>{t('Support')}</h4><Link href="/track" onClick={close}>{t('Track order')}</Link><Link href="/contact" onClick={close}>{t('Contact')}</Link><Link href="/account" onClick={close}>{t('Account')}</Link>
-      </div>
+    {mounted && createPortal(
+      <div className={`mm-wrap ${mm ? 'open' : ''}`} aria-hidden={!mm}>
+        <div className="mm-ov" onClick={close} />
+        <aside className="mm-panel" role="dialog" aria-modal="true" aria-label="Menu">
+          <button className="mm-x" onClick={close} aria-label="Close menu">✕</button>
+          <h4>{t('Timepieces')}</h4>{collections.map((c) => <Link key={c.id} href={`/collections/${c.slug}`} onClick={close}>{c.name}</Link>)}<Link href="/collections" onClick={close}>{t('All timepieces')}</Link>
+          <h4>{t('Discover')}</h4><Link href="/our-story" onClick={close}>{t('Our story')}</Link><Link href="/heritage" onClick={close}>{t('Heritage')}</Link><Link href="/journal" onClick={close}>{t('Journal')}</Link><Link href="/circle" onClick={close}>{t('The Circle')}</Link><Link href="/#realm" onClick={close}>{t('Find your realm')}</Link><Link href="/policies/warranty" onClick={close}>{t('1-year warranty')}</Link>
+          <h4>{t('Support')}</h4><Link href="/track" onClick={close}>{t('Track order')}</Link><Link href="/contact" onClick={close}>{t('Contact')}</Link><Link href="/account" onClick={close}>{t('Account')}</Link>
+      
+        </aside>
+      </div>, document.body)}
     </header>
   );
 }
