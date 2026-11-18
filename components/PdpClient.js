@@ -162,14 +162,14 @@ const short = (col?.name && p.name.toUpperCase().startsWith(col.name.toUpperCase
         <div className="engr" data-rv><div><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.1" strokeLinecap="round" strokeLinejoin="round"><path d="M12 3l7 3v6c0 4.5-3 7.6-7 9-4-1.4-7-4.5-7-9V6l7-3z"/><path d="M9 12l2.2 2.2L15.5 10"/></svg><span>{lang === 'hi' ? 'एक वर्ष की वारंटी' : '1-year warranty'}</span></div><div><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.1" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="8.5"/><path d="M12 7v5l3 2"/></svg><span>{lang === 'hi' ? 'जापानी क्वार्ट्ज़' : 'Japanese quartz'}</span></div><div><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.1" strokeLinecap="round" strokeLinejoin="round"><path d="M4 12a8 8 0 1 0 2.6-5.9"/><path d="M4 4v4h4"/></svg><span>{lang === 'hi' ? `${settings.return_days} दिन में वापसी` : `${settings.return_days}-day returns`}</span></div></div>
         {!!feats.length && <ul className="feats">{feats.map((f, n) => <li key={f} {...rv(n)}>{lang === 'hi' ? hiText(f) : f}</li>)}</ul>}
         <div className="specs">
-          {Object.entries(p.specs || {}).filter(([k]) => noDim(k)).map(([k, v]) => [k, k === 'Dial' && dialFeat ? dialFeat : v]).map(([k, v], n) => <div key={k} {...rv(n)}><span>{t(k)}</span><span>{lang === 'hi' ? hiText(v) : String(v)}</span></div>)}
           <div><span>{t('Delivery')}</span><span>{lang === 'hi' ? String(settings.delivery_days).replace('business days', 'कार्य-दिवस') : settings.delivery_days}</span></div>
+          {Object.entries(p.specs || {}).filter(([k]) => noDim(k)).map(([k, v]) => [k, k === 'Dial' && dialFeat ? dialFeat : v]).map(([k, v], n) => <div key={k} {...rv(n)}><span>{t(k)}</span><span>{lang === 'hi' ? hiText(v) : String(v)}</span></div>)}
         </div>
       </section>
 
-      <RealmButton collections={collections} />
-      <InfiniteRow title={t('Recently viewed')} items={recentItems} />
       <Quotes items={(reviews || []).map((r) => { const [nm, ct] = String(r.name || '').split(' · '); return { name: nm, city: ct, quote: r.body }; })} />
+      <InfiniteRow title={t('Recently viewed')} items={recentItems} />
+      <RealmButton collections={collections} />
       <InfiniteRow title={t('Related watches')} items={related} />
       <div className="hair" aria-hidden="true" />
 

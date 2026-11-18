@@ -3,11 +3,11 @@ import { useEffect, useState } from 'react';
 
 // Header mark, in a loop:
 //   0  YUG + ASTRA          (2.6s)   the two words, with a gold plus between them
-//   1  YUGASTRA             (15s)    the plus folds away and the words join
+//   1  YUGASTRA             (10s)    the plus folds away and the words join
 //   2  युग + अस्त्र           (2.6s)   melts into the Hindi words
 //   3  युगास्त्र              (6s)     the plus folds away; the joined Hindi word
 // then back to YUG + ASTRA.  Edit the times (ms) here.
-const MS = [2600, 15000, 2600, 6000];
+const MS = [2600, 10000, 2600, 6000];
 export default function LogoMorph() {
   const [ph, setPh] = useState(0);
   useEffect(() => { const id = setTimeout(() => setPh((p) => (p + 1) % 4), MS[ph]); return () => clearTimeout(id); }, [ph]);

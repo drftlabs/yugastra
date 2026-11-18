@@ -1685,7 +1685,7 @@ html.nav-out:after{content:"";position:fixed;left:0;top:0;height:2px;width:0;z-i
 .lm2.ph2 .lm-en2,.lm2.ph3 .lm-en2{opacity:0;filter:blur(8px);transform:scale(1.04)}
 /* Hindi */
 .lm-hs,.lm-hj{opacity:0;filter:blur(8px);transform:scale(.95)}
-.lm-hs b,.lm-hj b{font-family:var(--font-deva),'Noto Sans Devanagari',var(--f-head),sans-serif;font-weight:500;font-size:calc(var(--lh)*.78);line-height:1.15;background:var(--gold-grad);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;color:transparent;letter-spacing:0;font-feature-settings:'liga','clig','akhn','half'}
+.lm-hs b,.lm-hj b{font-family:var(--font-deva),'Noto Sans Devanagari',var(--f-head),sans-serif;font-weight:500;font-size:calc(var(--lh)*1.05);line-height:1.15;background:var(--gold-grad);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;color:transparent;letter-spacing:0;font-feature-settings:'liga','clig','akhn','half'}
 .lm-hs .plus{width:calc(var(--lh)*.6)}
 .lm-hs b+.plus{margin:0 calc(var(--lh)*.08)}
 .lm2.ph2 .lm-hs{opacity:1;filter:none;transform:none}
@@ -1694,3 +1694,60 @@ html.nav-out:after{content:"";position:fixed;left:0;top:0;height:2px;width:0;z-i
 .lm2.ph3 .lm-hs .plus{width:0;opacity:0}
 .hdr .logo:hover .lm2{filter:drop-shadow(0 0 14px rgba(255,190,90,.35))}
 @media(prefers-reduced-motion:reduce){.lm2>span,.lm2 .plus,.lm-en2 .p2{transition:none}}
+
+/* ================= v32b ================= */
+/* language toggle: smaller, further right */
+.hdr-actions{gap:12px}
+.hdr-in{padding-right:0!important}
+.langsw{font-size:11px!important;gap:6px!important;letter-spacing:.1em!important;margin-left:auto;transform:translateX(10px)}
+.langsw a[lang="hi"]{font-size:12px!important}
+@media(max-width:700px){.langsw{font-size:9.5px!important;gap:4px!important;transform:translateX(4px)}.langsw a[lang="hi"]{font-size:10.5px!important}}
+/* buy now: flat, minimal, orange (top) to golden yellow (bottom) */
+html:not(:has(.adm)) .btn-buy,html:not(:has(.adm)) .pay-on,html:not(:has(.adm)) .sticky-buy .btn-buy,html:not(:has(.adm)) .cart-go{background:linear-gradient(180deg,#e68a2e 0%,#f2c45a 100%)!important;box-shadow:0 8px 22px -12px rgba(230,140,40,.5)!important;-webkit-text-stroke:0!important;font-weight:600!important;color:#1a1208!important}
+.btn-buy:before,.pay-on:before,.cart-go:before{display:none!important}
+.btn-buy:after,.cart-go:after{background:linear-gradient(100deg,transparent,rgba(255,255,255,.16),transparent)!important}
+/* 4th-angle watermark -15% */
+.ss-wm span{font-size:clamp(65px,13vw,130px)!important}
+/* remove the extra hairlines: after the 4th angle, and above the collection story */
+.mean.nomark,.mean.desc-sm{background:none!important}
+/* about this piece: wider card, tighter side padding, description -5% */
+.pstory{max-width:700px;padding:0 8px}
+.ps-card{padding:38px clamp(16px,3.6vw,30px) 34px}
+.ps-lead{font-size:clamp(20px,3.1vw,24.7px)}
+html[lang="hi"] .ps-lead{font-size:clamp(16px,2.66vw,20px)}
+.ps-body{font-size:13.3px}
+
+/* ================= v32c: one champagne gold, lighter cards, quieter tags, even rhythm ================= */
+html:not(:has(.adm)){--champ:#dfcfa4;--au:#dfcfa4;--gold:#dfcfa4;--gold2:#c4b385;--gold3:#7a6f55}
+/* amber/orange only for the logo and Buy now; everything else champagne */
+html:not(:has(.adm)) .price,html:not(:has(.adm)) .price b,html:not(:has(.adm)) .price.big,html:not(:has(.adm)) .save,html:not(:has(.adm)) .eyebrow,html:not(:has(.adm)) .ss-k,html:not(:has(.adm)) .mean h3,html:not(:has(.adm)) .tag,html:not(:has(.adm)) .co-h,html:not(:has(.adm)) .label-sm,.ps-k,.inv-k,.pr-price{color:var(--champ)!important}
+html:not(:has(.adm)) .gold-text{background:none;-webkit-text-fill-color:var(--champ);color:var(--champ)}
+html:not(:has(.adm)) .mean .ml[style]{color:var(--champ)!important}
+.ps-pal .ps-k{color:var(--champ)!important}
+.lm2 .plus{color:#e9b04e}
+/* one label style everywhere */
+html:not(:has(.adm)) .eyebrow,.ps-k,.ss-k,.mean h3,.inv-k,.mm-panel h4{font-family:var(--f-head);font-size:10.5px;letter-spacing:.34em;font-weight:400;text-transform:uppercase}
+html[lang="hi"] .eyebrow,html[lang="hi"] .ps-k,html[lang="hi"] .ss-k,html[lang="hi"] .mean h3{letter-spacing:.06em;font-size:12.5px}
+/* tags: one quiet champagne style, no fills, no colours */
+html:not(:has(.adm)) .tg,html:not(:has(.adm)) .tg.best,html:not(:has(.adm)) .tg.lim,html:not(:has(.adm)) .tg.new,html:not(:has(.adm)) .tg.oth{background:none!important;color:var(--champ)!important;border:0!important;border-bottom:1px solid rgba(223,207,164,.45)!important;border-radius:0!important;padding:0 0 3px!important;font-size:8.5px!important;letter-spacing:.3em!important;font-weight:500!important;backdrop-filter:none!important;box-shadow:none!important}
+.tg:before{display:none!important}
+.tgs.in-meta{display:flex;margin:0 0 10px}
+.tgs.on-img{opacity:.92}
+/* collection cards: no box, no glass, light */
+.grid2 .ccard,.ccard{background:none!important;border:0!important;border-radius:0!important;box-shadow:none!important;overflow:visible}
+.ccard .art{border-radius:10px;overflow:hidden}
+.ccard .meta{padding:16px 2px 6px!important;text-align:left}
+.ccard .price s,.ccard .cc-off{display:none!important}
+.ccard .cc-dots{display:flex;align-items:center;gap:6px;margin-top:8px}
+.ccard .price{margin-top:10px}
+/* even vertical rhythm on the product page */
+.pdp-page{--sec:56px}
+@media(min-width:861px){.pdp-page{--sec:96px}}
+.pdp-page .story-screen,.pdp-page .mean,.pdp-page .mean.nomark,.pdp-page .mean.desc-sm,.pdp-page .wrow,.pdp-page .wrow.solo,.pdp-page .pstory,.pdp-page .pdp-details,.pdp-page .irow,.pdp-page .quotes,.pdp-page .realm-cta{margin-top:var(--sec)!important;margin-bottom:0!important;padding-top:0!important}
+.pdp-page .wrow .wr-txt,.pdp-page .wrow.has .wr-txt{margin-top:0!important;padding-top:0!important}
+.pdp-page .story-screen{padding-bottom:0!important}
+/* home: shorter name note */
+.namenote{padding-top:56px!important;padding-bottom:0!important}
+.nn-in h2{font-size:clamp(20px,2.6vw,32px)}
+.nn-rule{margin:22px auto}
+.nn-in p{font-size:clamp(14.5px,1.3vw,16.5px);margin:0 0 12px;line-height:1.95}

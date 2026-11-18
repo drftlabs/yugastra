@@ -33,7 +33,7 @@ export default async function Home() {
     <>
       <HeroVideo />
 
-      <NameNote />
+      <NameNote only={[1, 2]} />
 
       <CollectionSlider discover={t('Discover →')} items={collections.map((c) => {
         const pr = allP.find((x) => x.collection_id === c.id) || allP.find((x) => String(x.name).toUpperCase().startsWith(String(c.name).toUpperCase()));
