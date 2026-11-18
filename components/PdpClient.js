@@ -7,6 +7,7 @@ import { opt } from '@/lib/img';
 import Sparkles from '@/components/Sparkles';
 import Tags from '@/components/Tags';
 import Quotes from '@/components/Quotes';
+import RealmButton from '@/components/RealmButton';
 import InfiniteRow from '@/components/InfiniteRow';
 import Delivery from '@/components/Delivery';
 import WaitlistBox from '@/components/WaitlistBox';
@@ -36,7 +37,7 @@ const boldNames = (txt, names) => {
   return String(txt).split(re).map((x, i) => (i % 2 ? <b key={i}>{x}</b> : x));
 };
 
-export default function PdpClient({ reviews = [], items, startSlug, theme, eyebrow, settings, whatsapp = '', unlockedSlugs = [], wristPhotos = [], col = null, realm = null, showGlow = true, checkout = null, box = '', handPhoto = '', catalog = [] }) {
+export default function PdpClient({ collections = [], reviews = [], items, startSlug, theme, eyebrow, settings, whatsapp = '', unlockedSlugs = [], wristPhotos = [], col = null, realm = null, showGlow = true, checkout = null, box = '', handPhoto = '', catalog = [] }) {
   const t = useT(); const lang = useLang(); const cn = (x) => (lang === 'hi' ? COLOR_HI[x] || x : x);
   const [slug, setSlug] = useState(startSlug);
   const bar = true; const [co, setCo] = useState(false);
@@ -105,6 +106,7 @@ const short = (col?.name && p.name.toUpperCase().startsWith(col.name.toUpperCase
       {p.images?.[3] && (
         <section className={`story-screen t-${theme}`}>
           {showGlow && <Sparkles theme={theme} n={26} />}
+          <div className="ss-wm" aria-hidden="true"><span className="a">{lang === 'hi' ? 'युग' : 'YUG'}</span><span className="b">{lang === 'hi' ? 'अस्त्र' : 'ASTRA'}</span></div>
           <img src={opt(p.images[3], 1200, 85)} alt={p.name} loading="lazy" decoding="async" />
           <div className="ss-line"><div className="ss-k">{p.name}</div><h2 className="ss-h">{p.tagline}</h2><i /></div>
         </section>
@@ -112,7 +114,7 @@ const short = (col?.name && p.name.toUpperCase().startsWith(col.name.toUpperCase
 
       {(col?.meaning || realm) && (
         <section className="mean nomark">
-          {col?.sanskrit && <div className="sk" {...rv(0)}>{col.sanskrit}</div>}
+          {col?.sanskrit && <div className="sk" {...rv(0)}><b>{col.sanskrit}</b><i>/</i><span>{col.name}</span></div>}
           <div className="eyebrow" style={{ marginBottom: 8, '--d': '90ms' }} data-rv>{t('What it means')}</div>
           {col?.meaning && <div className="ml" {...rv(2)}>{col.meaning}</div>}
           {realm && <div className="ml" style={{ marginTop: 10, color: 'var(--gold)', '--d': '270ms' }} data-rv>{t(realm.realm)}</div>}
@@ -121,7 +123,7 @@ const short = (col?.name && p.name.toUpperCase().startsWith(col.name.toUpperCase
 
       {p.images?.[1] && (
         <div className="wrow solo">
-          <div className={`wr-img t-${theme}`} data-rv>{showGlow && <Sparkles theme={theme} n={22} />}<img src={opt(p.images[1], 1080, 85)} alt={p.name} loading="lazy" decoding="async" /></div>
+          <div className={`wr-img macro t-${theme}`} data-rv>{showGlow && <Sparkles theme={theme} n={22} />}<img src={opt(p.images[1], 1080, 85)} alt={p.name} loading="lazy" decoding="async" /></div>
         </div>
       )}
 
@@ -139,12 +141,22 @@ const short = (col?.name && p.name.toUpperCase().startsWith(col.name.toUpperCase
         </div>
       )}
 
-      {(p.long_description || realm) && (
-        <section className="mean desc-sm pabout">
-          {p.long_description && (<><h3 {...rv(0)}>{lang === 'hi' ? `${p.name} के विषय में` : `About ${p.name}`}</h3>{split2(p.long_description).map((x, i) => <p key={i} {...rv(i + 1)}>{x}</p>)}</>)}
-          {realm && (<><h3 {...rv(2)}>{t('The colour')}</h3><p {...rv(3)}>{t(realm.meaning)}</p></>)}
+      {(p.long_description || realm) && (() => { const paras = split2(p.long_description || ''); return (
+        <section className="pstory" data-rv>
+          <div className="ps-card">
+            <div className="ps-k">{lang === 'hi' ? 'इस कृति के विषय में' : 'About this piece'}</div>
+            <h3 className="ps-h">{p.name}</h3>
+            {paras[0] && <p className="ps-lead">{paras[0]}</p>}
+            {paras[1] && <p className="ps-body">{paras[1]}</p>}
+            {realm && (
+              <div className="ps-pal">
+                <div className="ps-sw"><i style={{ background: CASE_HEX[p.case_color] || '#888' }} /><i style={{ background: STRAP_HEX[p.strap_color] || '#888' }} /></div>
+                <div><div className="ps-k">{lang === 'hi' ? 'रंग-विन्यास' : 'The palette'}</div><p>{t(realm.meaning)}</p></div>
+              </div>
+            )}
+          </div>
         </section>
-      )}
+      ); })()}
 
       <section className="pdp-details">
         <div className="engr" data-rv><div><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.1" strokeLinecap="round" strokeLinejoin="round"><path d="M12 3l7 3v6c0 4.5-3 7.6-7 9-4-1.4-7-4.5-7-9V6l7-3z"/><path d="M9 12l2.2 2.2L15.5 10"/></svg><span>{lang === 'hi' ? 'एक वर्ष की वारंटी' : '1-year warranty'}</span></div><div><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.1" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="8.5"/><path d="M12 7v5l3 2"/></svg><span>{lang === 'hi' ? 'जापानी क्वार्ट्ज़' : 'Japanese quartz'}</span></div><div><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.1" strokeLinecap="round" strokeLinejoin="round"><path d="M4 12a8 8 0 1 0 2.6-5.9"/><path d="M4 4v4h4"/></svg><span>{lang === 'hi' ? `${settings.return_days} दिन में वापसी` : `${settings.return_days}-day returns`}</span></div></div>
@@ -155,6 +167,7 @@ const short = (col?.name && p.name.toUpperCase().startsWith(col.name.toUpperCase
         </div>
       </section>
 
+      <RealmButton collections={collections} />
       <InfiniteRow title={t('Recently viewed')} items={recentItems} />
       <Quotes items={(reviews || []).map((r) => { const [nm, ct] = String(r.name || '').split(' · '); return { name: nm, city: ct, quote: r.body }; })} />
       <InfiniteRow title={t('Related watches')} items={related} />

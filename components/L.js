@@ -13,7 +13,7 @@ export default function Link({ href, ...r }) {
   const { onClick, ...rest } = r;
   const go = (e) => {
     onClick?.(e);
-    try { if (!e.defaultPrevented && !e.metaKey && !e.ctrlKey && !e.shiftKey && e.button === 0 && typeof href === 'string' && href.startsWith('/')) { const d = document.documentElement; d.classList.add('nav-out'); setTimeout(() => d.classList.remove('nav-out'), 700); } } catch {}
+    try { if (!e.defaultPrevented && !e.metaKey && !e.ctrlKey && !e.shiftKey && e.button === 0 && typeof href === 'string' && href.startsWith('/')) { const d = document.documentElement; d.classList.add('nav-out'); setTimeout(() => d.classList.remove('nav-out'), 9000); } } catch {}
   };
   return <NextLink href={pre(l, href)} onClick={go} {...rest} />;
 }
