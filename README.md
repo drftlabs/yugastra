@@ -32,7 +32,7 @@ With no Supabase keys the site runs on demo data (`lib/fallback.js`); checkout a
 - Replace generated dial artwork with real product photos (Admin → Products / Collections / Slides).
 - Redraw the logo as vector; the PNG here is cut from a gradient source.
 - Placeholder copy, prices and the "Circle" members are demo values. Legal text is a starter; have counsel review.
-- Catalog: 5 collections (DHRUV, SURYA, NAKSH, VYOM, SOMA), 20 watches, all ₹3,999 (MRP ₹5,999). SKU format `YG-{COL}-{CASE}-{STRAP}`. Cases: black, silver, gold. Japanese quartz, 1-year warranty.
+- Catalog: 5 collections (DHRUV, SURYA, NAKSH, VYOM, SOMA), 20 watches, all ₹2,999 (MRP ₹5,999). SKU format `YG-{COL}-{CASE}-{STRAP}`. Cases: black, silver, gold. Japanese quartz, 1-year warranty.
 - Re-running `schema.sql` is safe (adds new columns with `if not exists`); `seed.sql` replaces catalog rows.
 - Product/collection copy (meaning, story, long description, features, SEO) is editable in Admin.
 - Without Supabase env vars the site runs in preview mode from `lib/fallback.js`; checkout returns 503 until configured.

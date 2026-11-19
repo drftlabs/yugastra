@@ -25,7 +25,7 @@ export default async function Order({ params }) {
           {o.paid_at && <div className="row"><span>Paid at</span><span>{new Date(o.paid_at).toLocaleString('en-IN')}</span></div>}
           {cod && <div className="row"><span>Status</span><span>Not paid yet · confirmed by WhatsApp code</span></div>}</div></div>
       <form className="box" action={act}><div className="eyebrow">Fulfilment</div>
-        <div className="field" style={{ marginTop: 12 }}><label>Status</label><select className="inp" name="status" defaultValue={o.status}>{['pending_payment', 'paid', 'processing', 'shipped', 'delivered', 'cancelled'].map((s) => <option key={s}>{s}</option>)}</select></div>
+        <div className="field" style={{ marginTop: 12 }}><label>Status</label><select className="inp" name="status" defaultValue={o.status}>{['otp_pending', 'pending_payment', 'paid', 'processing', 'shipped', 'delivered', 'cancelled'].map((s) => <option key={s}>{s}</option>)}</select></div>
         <div className="field"><label>Courier</label><input className="inp" name="courier" defaultValue={o.courier || ''} /></div>
         <div className="field"><label>Tracking number</label><input className="inp" name="tracking_number" defaultValue={o.tracking_number || ''} /></div>
         <div className="field"><label>Tracking URL</label><input className="inp" name="tracking_url" defaultValue={o.tracking_url || ''} /></div>

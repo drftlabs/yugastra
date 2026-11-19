@@ -25,7 +25,7 @@ export default function CheckoutForm({ cfg, rzpReady, waEnabled, deliveryDays, o
   const [code, setCode] = useState(''); const [disc, setDisc] = useState({ amount: 0, code: '' }); const [dmsg, setDmsg] = useState('');
   const [err, setErr] = useState(''); const [busy, setBusy] = useState(false);
   const [wa, setWa] = useState({ open: false, sent: false, code: '', timer: 0, msg: '', busy: false });
-  const had = useRef(false);
+  const had = useRef(false); const hold = useRef(null);
   useEffect(() => { if (items.length) { if (!had.current) { had.current = true; px('InitiateCheckout', { value: subtotal, currency: 'INR', num_items: items.length }); } } else if (had.current && onEmpty) onEmpty(); }, [items.length]);
   const set = (k) => (e) => setF({ ...f, [k]: e.target.value });
   const pr = useMemo(() => priceOrder({ subtotal, discount: disc.amount, method: 'online', cfg, advance: false }), [subtotal, disc, cfg]);
@@ -60,16 +60,25 @@ export default function CheckoutForm({ cfg, rzpReady, waEnabled, deliveryDays, o
   }
   async function verifyWA(c) {
     setWa((w) => ({ ...w, busy: true, msg: '' }));
-    const d = await jfetch('/api/whatsapp/verify', { phone: f.phone, code: c });
+    const d = await jfetch('/api/whatsapp/verify', { phone: f.phone, code: c, holdId: hold.current });
     if (!d.ok) return setWa((w) => ({ ...w, busy: false, msg: t(d.error || 'Incorrect code.'), code: '' }));
+    if (d.cod) { // confirmed on the server: go straight to the thank-you page
+      try { sessionStorage.setItem('yg_last', JSON.stringify({ value: prCod.total, n: items.length })); } catch {}
+      clear(); return r.push(pre(lang, `/checkout/success?o=${d.orderNumber}&due=${d.due || 0}`));
+    }
     setWa({ open: false, sent: false, code: '', timer: 0, msg: '', busy: false }); place('cod', true);
   }
   async function place(method, verified) {
     setErr('');
     const ph = f.phone.replace(/\D/g, '').slice(-10);
     if (!f.name.trim() || !/^[6-9]\d{9}$/.test(ph) || !/^\S+@\S+\.\S+$/.test(f.email) || !f.address.trim() || !/^\d{6}$/.test(f.pincode)) return setErr(lang === 'hi' ? 'कृपया नाम, 10 अंकों का मोबाइल, ईमेल, पता और 6 अंकों का पिनकोड सही-सही भरें।' : 'Please fill in your name, 10-digit mobile, email, address and 6-digit pincode.');
-    if (method === 'cod' && waEnabled && !verified) return sendWA();
     setBusy(true);
+    if (method === 'cod' && waEnabled && !verified) { // log the order first, send the code at the same time
+      const [h] = await Promise.all([jfetch('/api/checkout/create', { items: items.map((i) => ({ id: i.id, qty: i.qty })), customer: { ...f, phone: ph }, method, advance: false, code: disc.code, lang }), sendWA()]);
+      setBusy(false);
+      if (h.needWA && h.holdId) { hold.current = h.holdId; return; }
+      setWa((w) => ({ ...w, open: false })); return setErr(t(h.error || 'Something went wrong.'));
+    }
     const d = await jfetch('/api/checkout/create', { items: items.map((i) => ({ id: i.id, qty: i.qty })), customer: { ...f, phone: ph }, method, advance: false, code: disc.code, lang });
     if (!d.ok) { setBusy(false); if (d.needWA) return sendWA(); return setErr(t(d.error || 'Something went wrong.') + (d.status ? ` (${d.status})` : '')); }
     const done = (n) => { try { sessionStorage.setItem('yg_last', JSON.stringify({ value: pr.total, n: items.length })); } catch {} clear(); r.push(pre(lang, `/checkout/success?o=${n}&due=${d.due || 0}`)); };

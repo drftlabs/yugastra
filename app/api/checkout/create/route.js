@@ -1,4 +1,4 @@
-import { NextResponse } from 'next/server';
+import { NextResponse, unstable_after as after } from 'next/server';
 import { cookies } from 'next/headers';
 import Razorpay from 'razorpay';
 import { serviceClient } from '@/lib/supabase/server';
@@ -48,24 +48,29 @@ async function handle(req) {
   // COD with no advance must be phone-verified via WhatsApp code.
   const waEnabled = waOn();
   const needWA = waEnabled && method === 'cod' && !advance;
+  let hold = false;
   if (needWA) {
     const { data: otp } = await c.from('wa_otps').select('*').eq('phone', phone).maybeSingle();
-    if (!otp?.verified_until || new Date(otp.verified_until) < new Date())
-      return NextResponse.json({ error: 'Please verify your phone number on WhatsApp first.', needWA: true }, { status: 403 });
-    await c.from('wa_otps').update({ verified_until: null }).eq('phone', phone);
+    if (otp?.verified_until && new Date(otp.verified_until) >= new Date()) await c.from('wa_otps').update({ verified_until: null }).eq('phone', phone);
+    else hold = true; // log the order now as "unconfirmed"; the WhatsApp code confirms it
   }
 
   const { data: num, error: nerr } = await c.rpc('next_order_number');
   if (nerr || !num) return NextResponse.json({ error: 'Order numbering is not set up in the database. Run supabase/schema.sql again.' }, { status: 500 });
   const row = {
-    order_number: num, status: 'pending_payment', name: u.name.trim(), email: u.email.trim().toLowerCase(), phone,
+    order_number: num, status: hold ? 'otp_pending' : 'pending_payment', name: u.name.trim(), email: u.email.trim().toLowerCase(), phone,
     address: u.address.trim(), landmark: (u.landmark || '').trim() || null, city: u.city, state: u.state, pincode: u.pincode, items,
     subtotal: pr.subtotal, discount: pr.discount, discount_code: d.ok ? d.code : null, shipping: pr.shipping,
     total: pr.total, payment_method: method, amount_due: pr.due, lang: b.lang === 'hi' ? 'hi' : 'en',
   };
-  let { data: order, error } = await c.from('orders').insert(row).select().single();
+  // same phone tapping COD again: refresh the one unconfirmed order instead of logging a duplicate
+  let reuse = null;
+  if (hold) { const { data: ex } = await c.from('orders').select('id,order_number').eq('phone', phone).eq('status', 'otp_pending').gte('created_at', new Date(Date.now() - 6 * 3600000).toISOString()).order('created_at', { ascending: false }).limit(1).maybeSingle(); reuse = ex; }
+  if (reuse) row.order_number = reuse.order_number;
+  const save = (r) => (reuse ? c.from('orders').update(r).eq('id', reuse.id).select().single() : c.from('orders').insert(r).select().single());
+  let { data: order, error } = await save(row);
   if (error && /landmark|lang/.test(error.message || '')) { // older database without these columns
-    delete row.landmark; delete row.lang; ({ data: order, error } = await c.from('orders').insert(row).select().single());
+    delete row.landmark; delete row.lang; ({ data: order, error } = await save(row));
   }
   if (error) { console.error('order insert', error); return NextResponse.json({ error: `Could not create order: ${error.message}. Run the latest SQL files in Supabase.` }, { status: 500 }); }
   for (const a of accessIds) { // single-use: spend the code once the order exists
@@ -73,8 +78,9 @@ async function handle(req) {
     await c.from('waitlist_entries').update({ status: 'purchased' }).eq('email', order.email).eq('product_id', a.product_id);
   }
 
+  if (hold) return NextResponse.json({ needWA: true, holdId: order.id, orderNumber: order.order_number, due: pr.due, total: pr.total });
   if (pr.payNow === 0) {
-    try { await markPaid(c, order, 'COD'); } catch (e) { console.error('markPaid', e); } // the order exists; follow-up steps must not fail the customer
+    try { await markPaid(c, order, 'COD', typeof after === 'function' ? after : undefined); } catch (e) { console.error('markPaid', e); } // the order exists; follow-up steps must not fail the customer
     return NextResponse.json({ cod: true, orderNumber: order.order_number, due: pr.due, total: pr.total });
   }
   if (!process.env.RAZORPAY_KEY_ID || !process.env.RAZORPAY_KEY_SECRET) {
