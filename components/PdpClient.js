@@ -12,7 +12,7 @@ import InfiniteRow from '@/components/InfiniteRow';
 import Delivery from '@/components/Delivery';
 import WaitlistBox from '@/components/WaitlistBox';
 import CheckoutModal from '@/components/CheckoutModal';
-import { CASE_HEX, STRAP_HEX } from '@/lib/swatch';
+import { CASE_HEX, STRAP_HEX, dialSwatch } from '@/lib/swatch';
 import { useLang, useT, pre } from '@/components/L';
 import { px } from '@/lib/pixel';
 import { COLOR_HI, hiText } from '@/lib/i18n';
@@ -58,9 +58,16 @@ export default function PdpClient({ collections = [], reviews = [], items, start
   const recentItems = recent.map((s) => byslug[s]).filter(Boolean).slice(0, 8);
   const cases = useMemo(() => [...new Set(items.map((x) => x.case_color).filter(Boolean))], [items]);
   const straps = useMemo(() => [...new Set(items.map((x) => x.strap_color).filter(Boolean))], [items]);
-  const has = (c, s) => items.find((x) => x.case_color === c && x.strap_color === s);
-  const pick = (c, s) => {
-    const m = has(c, s) || items.find((x) => x.case_color === c) || items.find((x) => x.strap_color === s);
+  const dialOf = (x) => x?.specs?.Dial || '';
+  const dials = useMemo(() => [...new Set(items.map(dialOf).filter(Boolean))], [items]);
+  const has = (c, s) => items.find((x) => x.case_color === c && x.strap_color === s && (!dialOf(p) || dialOf(x) === dialOf(p))) || items.find((x) => x.case_color === c && x.strap_color === s);
+  // Change one of case / strap / dial and keep the other two whenever such a watch exists.
+  const pick = (ch) => {
+    const want = { c: ch.c ?? p.case_color, s: ch.s ?? p.strap_color, d: ch.d ?? dialOf(p) };
+    const key = ch.c != null ? 'c' : ch.s != null ? 's' : 'd';
+    const fit = (x) => (key === 'c' ? x.case_color === want.c : key === 's' ? x.strap_color === want.s : dialOf(x) === want.d);
+    const score = (x) => (x.case_color === want.c) + (x.strap_color === want.s) + (dialOf(x) === want.d);
+    const m = items.filter(fit).sort((a, b) => score(b) - score(a))[0];
     if (m) { setSlug(m.slug); try { history.replaceState(null, '', pre(lang, `/products/${m.slug}`)); document.title = m.seo_title || m.name; } catch {} }
   };
   const save = p.compare_price && p.compare_price > p.price ? Math.round((1 - p.price / p.compare_price) * 100) : 0;
@@ -87,17 +94,23 @@ const short = (col?.name && p.name.toUpperCase().startsWith(col.name.toUpperCase
           {cases.length > 1 && (<>
             <span className="label-sm">{t('Case')} · {cn(p.case_color)}</span>
             <div className="swrow">{cases.map((c) => (
-              <button key={c} type="button" className={`swr ${c === p.case_color ? 'on' : ''}`} onClick={() => pick(c, p.strap_color)} aria-pressed={c === p.case_color} aria-label={cn(c)} title={cn(c)}>
+              <button key={c} type="button" className={`swr ${c === p.case_color ? 'on' : ''}`} onClick={() => pick({ c })} aria-pressed={c === p.case_color} aria-label={cn(c)} title={cn(c)}>
                 <span style={{ background: CASE_HEX[c] || '#888' }} />
               </button>))}</div></>)}
           {straps.length > 1 && (<>
             <span className="label-sm">{t('Strap')} · {cn(p.strap_color)}</span>
             <div className="swrow">{straps.map((s) => {
               const ok = !!has(p.case_color, s);
-              return (<button key={s} type="button" className={`swr ${s === p.strap_color ? 'on' : ''} ${ok ? '' : 'dim'}`} onClick={() => pick(p.case_color, s)} aria-pressed={s === p.strap_color} aria-label={cn(s)} title={cn(s)}>
+              return (<button key={s} type="button" className={`swr ${s === p.strap_color ? 'on' : ''} ${ok ? '' : 'dim'}`} onClick={() => pick({ s })} aria-pressed={s === p.strap_color} aria-label={cn(s)} title={cn(s)}>
                 <span style={{ background: STRAP_HEX[s] || '#888' }} />
               </button>);
             })}</div></>)}
+          {dials.length > 1 && (<>
+            <span className="label-sm">{t('Dial')} · {lang === 'hi' ? hiText(dialOf(p)) : dialOf(p)}</span>
+            <div className="swrow">{dials.map((d) => { const sw = dialSwatch(d); return (
+              <button key={d} type="button" className={`swr dialsw ${d === dialOf(p) ? 'on' : ''}`} onClick={() => pick({ d })} aria-pressed={d === dialOf(p)} aria-label={d} title={lang === 'hi' ? hiText(d) : d}>
+                <span style={{ background: sw.dial }}><i style={{ background: sw.hands }} /></span>
+              </button>); })}</div></>)}
           <div id="pdp-buy">{mode === 'waitlist' && gated ? <WaitlistBox p={p} whatsapp={whatsapp} unlocked={false} onUnlock={(s) => setOpen([...open, s])} /> : <PdpBuy p={buyP} theme={theme} onBuyNow={checkout ? () => setCo(true) : undefined} />}</div>
           <Delivery days={settings.delivery_days} />
         </div>

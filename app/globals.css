@@ -1756,3 +1756,8 @@ html:not(:has(.adm)) .tg,html:not(:has(.adm)) .tg.best,html:not(:has(.adm)) .tg.
 html:not(:has(.adm)) .price,html:not(:has(.adm)) .price b,html:not(:has(.adm)) .price.big,html:not(:has(.adm)) .pr-price,html:not(:has(.adm)) .sb-name span{background:linear-gradient(180deg,#e68a2e 0%,#f2c45a 100%)!important;-webkit-background-clip:text!important;background-clip:text!important;-webkit-text-fill-color:transparent!important;color:transparent!important;width:fit-content}
 html:not(:has(.adm)) .price s{-webkit-text-fill-color:var(--muted)!important;background:none!important}
 html:not(:has(.adm)) .price b{background:none!important;-webkit-text-fill-color:inherit!important}
+
+/* ================= v34: KSHANA collection ================= */
+.t-kshana{--c1:#dfcfa4;--c1b:#c4b385;--c2:#4a4a52;--deep:#121316;--sp:#e6dcc4}
+.swr.dialsw span{position:relative}
+.swr.dialsw span i{position:absolute;left:50%;top:50%;width:34%;height:34%;transform:translate(-50%,-50%);border-radius:50%;box-shadow:0 0 0 1px rgba(0,0,0,.35)}
