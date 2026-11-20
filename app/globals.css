@@ -1761,3 +1761,6 @@ html:not(:has(.adm)) .price b{background:none!important;-webkit-text-fill-color:
 .t-kshana{--c1:#dfcfa4;--c1b:#c4b385;--c2:#4a4a52;--deep:#121316;--sp:#e6dcc4}
 .swr.dialsw span{position:relative}
 .swr.dialsw span i{position:absolute;left:50%;top:50%;width:34%;height:34%;transform:translate(-50%,-50%);border-radius:50%;box-shadow:0 0 0 1px rgba(0,0,0,.35)}
+
+/* v35 KAVACH: steel and navy */
+.t-kavach{--c1:#c9ccd0;--c1b:#9ea3aa;--c2:#0e2247;--deep:#0c1118;--sp:#d7dade}

@@ -38,7 +38,7 @@ async function handle(req) {
       accessIds.push({ id: ac.id, product_id: p.id });
     }
     if (p.stock < qty) return NextResponse.json({ error: `${p.name} has only ${p.stock} left.` }, { status: 400 });
-    items.push({ id: p.id, slug: p.slug, name: p.name, price: Number(p.price), qty, image: p.images?.[2] || p.images?.[0] || null });
+    items.push({ id: p.id, slug: p.slug, name: p.name, price: Number(p.price), qty, image: (p.images?.length >= 6 ? p.images[2] : p.images?.[0]) || null });
   }
   const subtotal = items.reduce((s, i) => s + i.price * i.qty, 0);
   const d = await checkDiscount(c, b.code, subtotal);
