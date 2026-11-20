@@ -7,6 +7,7 @@ import { waOn } from '@/lib/whatsapp';
 import { priceOrder, shippingCfg, checkDiscount, hasAdvance } from '@/lib/pricing';
 import { markPaid } from '@/lib/orders';
 import { cleanPhone, validPhone } from '@/lib/whatsapp';
+import { coverImg } from '@/lib/cover';
 
 async function handle(req) {
   const c = serviceClient();
@@ -38,7 +39,7 @@ async function handle(req) {
       accessIds.push({ id: ac.id, product_id: p.id });
     }
     if (p.stock < qty) return NextResponse.json({ error: `${p.name} has only ${p.stock} left.` }, { status: 400 });
-    items.push({ id: p.id, slug: p.slug, name: p.name, price: Number(p.price), qty, image: (p.images?.length >= 6 ? p.images[2] : p.images?.[0]) || null });
+    items.push({ id: p.id, slug: p.slug, name: p.name, price: Number(p.price), qty, image: coverImg(p) || null });
   }
   const subtotal = items.reduce((s, i) => s + i.price * i.qty, 0);
   const d = await checkDiscount(c, b.code, subtotal);

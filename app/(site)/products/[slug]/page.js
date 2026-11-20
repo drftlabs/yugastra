@@ -11,6 +11,7 @@ import { tr } from '@/lib/i18n';
 import { SAMPLE_REVIEWS } from '@/lib/reviews';
 import { hasSupabase } from '@/lib/supabase/server';
 import { getSiteImages, getProduct, getProducts, getCollections, getReviews, getSettings, inr } from '@/lib/data';
+import { coverImg } from '@/lib/cover';
 export async function generateMetadata({ params }) {
   const p = await getProduct(params.slug);
   return { title: p?.seo_title ? { absolute: p.seo_title } : (p?.name || 'Watch'), description: p?.seo_description || p?.description || p?.tagline };
@@ -24,7 +25,7 @@ export default async function Product({ params }) {
   const imgs = await getSiteImages();
   const all = await getProducts();
   const colName = Object.fromEntries(cols.map((c) => [c.id, c.name])); const colTheme = Object.fromEntries(cols.map((c) => [c.id, c.theme]));
-  const catalog = all.map((x) => ({ slug: x.slug, name: x.name, price: x.price, image: (x.images?.length >= 6 ? x.images[2] : x.images?.[0]) || '', tags: x.tags || [], theme: colTheme[x.collection_id] || 'brand', col: colName[x.collection_id] || '' }));
+  const catalog = all.map((x) => ({ slug: x.slug, name: x.name, price: x.price, image: coverImg(x) || '', tags: x.tags || [], theme: colTheme[x.collection_id] || 'brand', col: colName[x.collection_id] || '' }));
   const items = siblings.length ? siblings : [p];
   const save = p.compare_price && p.compare_price > p.price ? Math.round((1 - p.price / p.compare_price) * 100) : 0;
   const quotes = hasSupabase() ? reviews.map((r) => ({ name: r.name, body: r.body })) : SAMPLE_REVIEWS.filter((r) => r.slug === p.slug);

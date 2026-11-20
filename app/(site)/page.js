@@ -10,6 +10,7 @@ import { REALMS, SKT } from '@/lib/brand';
 import { getSiteImages, getSlides, getSettings, getCollections, getProducts } from '@/lib/data';
 import { getLang } from '@/lib/lang';
 import { tr } from '@/lib/i18n';
+import { coverImg } from '@/lib/cover';
 
 
 const PILLARS = [
@@ -24,7 +25,7 @@ export default async function Home() {
   const multi = settings.hero_multi === true || settings.hero_multi === 'true' || settings.hero_multi === 'yes';
   const imgs = await getSiteImages();
   const allP = await getProducts();
-  const tagged = allP.filter((x) => (x.tags || []).length).slice(0, 8).map((x) => ({ slug: x.slug, name: x.name, price: x.price, image: (x.images?.length >= 6 ? x.images[2] : x.images?.[0]) || '', tags: x.tags, theme: collections.find((c) => c.id === x.collection_id)?.theme || 'brand' }));
+  const tagged = allP.filter((x) => (x.tags || []).length).slice(0, 8).map((x) => ({ slug: x.slug, name: x.name, price: x.price, image: coverImg(x) || '', tags: x.tags, theme: collections.find((c) => c.id === x.collection_id)?.theme || 'brand' }));
   const detail = [1, 2, 3, 4].map((n, i) => ({ caption: imgs[`detail_${n}`]?.caption || ['The embossed dial', 'The case, in light', 'The strap', 'On the wrist'][i], image: imgs[`detail_${n}`]?.image }));
   let slides = multi ? allSlides : allSlides.slice(0, 1);
   if (imgs.hero_image && slides[0]) slides = [{ ...slides[0], image: imgs.hero_image.image }, ...slides.slice(1)];

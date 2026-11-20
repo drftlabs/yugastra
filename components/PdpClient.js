@@ -2,6 +2,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { createPortal } from 'react-dom';
 import PdpGallery from '@/components/PdpGallery';
+import { frontFirst } from '@/lib/cover';
 import PdpBuy from '@/components/PdpBuy';
 import { opt } from '@/lib/img';
 import Sparkles from '@/components/Sparkles';
@@ -85,7 +86,7 @@ const short = (col?.name && p.name.toUpperCase().startsWith(col.name.toUpperCase
       <div className="pdp">
         <div className="pdp-galwrap">
           <div className="tg-row"><Tags tags={p.tags} t={t} /></div>
-          <PdpGallery key={p.id} images={p.images || []} theme={theme} name={p.name} caseColor={p.case_color} strap={p.strap_color} video={p.video} box={box} showGlow={showGlow} hindiLine={p.hindi_line} />
+          <PdpGallery key={p.id} images={p.images || []} theme={theme} name={p.name} caseColor={p.case_color} strap={p.strap_color} video={p.video} box={box} showGlow={showGlow} hindiLine={p.hindi_line} frontFirst={frontFirst(p)} />
         </div>
         <div className="pdp-info">
           {eyebrow && <div className="eyebrow">{eyebrow}</div>}

@@ -7,9 +7,9 @@ import { useT } from '@/components/L';
 // Auto-sliding gallery: 5 s per photo, swipe to move, loops. Transparent PNGs sit on the realm glow.
 // Zoom works only on the photo: double-tap / double-click, or pinch.
 const MS = 3850; // 30% faster than the earlier 5 s
-export default function PdpGallery({ images = [], box = '', theme, name, caseColor = 'Silver', strap = '', video = '', showGlow = true, hindiLine = '' }) {
+export default function PdpGallery({ images = [], box = '', theme, name, caseColor = 'Silver', strap = '', video = '', showGlow = true, hindiLine = '', frontFirst = false }) {
   const t = useT();
-  const ORDER = images.length >= 6 ? [2, 0, 3, 1, 4, 5] : [0, 1, 2, 3, 4, 5]; const ordered = [...ORDER.filter((i) => images[i]).map((i) => images[i]), ...images.slice(ORDER.length)];
+  const ORDER = frontFirst ? [0, 1, 2, 3, 4, 5] : [2, 0, 3, 1, 4, 5]; const ordered = [...ORDER.filter((i) => images[i]).map((i) => images[i]), ...images.slice(ORDER.length)];
   const slides = [...ordered.map((s) => ({ t: 'img', s })), ...(video ? [{ t: 'vid', s: video }] : []), ...(box ? [{ t: 'img', s: box }] : [])];
   const n = slides.length;
   const [i, setI] = useState(0);
