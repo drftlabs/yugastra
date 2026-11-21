@@ -50,6 +50,7 @@ export default async function Analytics({ searchParams }) {
   const T = ({ l, v, s }) => <div className="stat"><span>{l}</span><b>{v}</b>{s && <small className="an-s">{s}</small>}</div>;
   return (<>
     <h1>Analytics</h1>
+    <div className="tabs"><Link className="on" href="/admin/analytics">Overview</Link><Link href="/admin/analytics/traffic">Traffic &amp; funnel</Link></div>
     <div className="tabs">{[7, 30, 90].map((d) => <Link key={d} className={days === d ? 'on' : ''} href={`/admin/analytics?days=${d}`}>Last {d} days</Link>)}</div>
     <div className="cards">
       <T l="Orders" v={ord.length} s={`${inr(rev)} revenue`} />

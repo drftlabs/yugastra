@@ -1764,3 +1764,13 @@ html:not(:has(.adm)) .price b{background:none!important;-webkit-text-fill-color:
 
 /* v35 KAVACH: steel and navy */
 .t-kavach{--c1:#c9ccd0;--c1b:#9ea3aa;--c2:#0e2247;--deep:#0c1118;--sp:#d7dade}
+
+/* v36 traffic analytics */
+.an-tw{overflow-x:auto;margin-top:10px}.an-tbl{width:100%;border-collapse:collapse;font-size:13px}
+.an-tbl th{font-weight:500;color:var(--muted);font-size:11px;letter-spacing:.06em;text-transform:uppercase;text-align:left;padding:6px 8px;border-bottom:1px solid rgba(255,255,255,.08);white-space:nowrap}
+.an-tbl td{padding:8px;border-bottom:1px solid rgba(255,255,255,.05);max-width:240px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.an-tbl .n{text-align:right;font-variant-numeric:tabular-nums}
+.fn{display:grid;gap:10px;margin-top:14px}.fn-r{display:grid;grid-template-columns:minmax(130px,220px) 1fr minmax(110px,190px);gap:12px;align-items:center}
+.fn-l{font-size:13px}.fn-l small,.fn-n small{display:block;color:var(--muted);font-size:11px}.fn-n{text-align:right}.fn-n b{font-size:16px}
+.fn-t{height:22px;background:rgba(255,255,255,.05);border-radius:4px;overflow:hidden}.fn-t i{display:block;height:100%;border-radius:4px;background:linear-gradient(90deg,var(--gold3),var(--gold))}
+@media(max-width:700px){.fn-r{grid-template-columns:1fr}.fn-n{text-align:left}}

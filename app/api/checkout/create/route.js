@@ -62,7 +62,7 @@ async function handle(req) {
     order_number: num, status: hold ? 'otp_pending' : 'pending_payment', name: u.name.trim(), email: u.email.trim().toLowerCase(), phone,
     address: u.address.trim(), landmark: (u.landmark || '').trim() || null, city: u.city, state: u.state, pincode: u.pincode, items,
     subtotal: pr.subtotal, discount: pr.discount, discount_code: d.ok ? d.code : null, shipping: pr.shipping,
-    total: pr.total, payment_method: method, amount_due: pr.due, lang: b.lang === 'hi' ? 'hi' : 'en',
+    total: pr.total, payment_method: method, amount_due: pr.due, lang: b.lang === 'hi' ? 'hi' : 'en', visitor: String(b.vid || '').slice(0, 40) || null,
   };
   // same phone tapping COD again: refresh the one unconfirmed order instead of logging a duplicate
   let reuse = null;
@@ -70,8 +70,8 @@ async function handle(req) {
   if (reuse) row.order_number = reuse.order_number;
   const save = (r) => (reuse ? c.from('orders').update(r).eq('id', reuse.id).select().single() : c.from('orders').insert(r).select().single());
   let { data: order, error } = await save(row);
-  if (error && /landmark|lang/.test(error.message || '')) { // older database without these columns
-    delete row.landmark; delete row.lang; ({ data: order, error } = await save(row));
+  if (error && /landmark|lang|visitor/.test(error.message || '')) { // older database without these columns
+    delete row.landmark; delete row.lang; delete row.visitor; ({ data: order, error } = await save(row));
   }
   if (error) { console.error('order insert', error); return NextResponse.json({ error: `Could not create order: ${error.message}. Run the latest SQL files in Supabase.` }, { status: 500 }); }
   for (const a of accessIds) { // single-use: spend the code once the order exists

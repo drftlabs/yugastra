@@ -8,6 +8,7 @@ import { opt } from '@/lib/img';
 import Dial from '@/components/Dial';
 import { priceOrder } from '@/lib/pricing';
 import { px } from '@/lib/pixel';
+import { visitorId } from '@/lib/track';
 const inr = (n) => '₹' + Number(n).toLocaleString('en-IN');
 // Always returns an object, even if the server sends HTML or nothing (so the form never fails silently).
 const jfetch = async (url, body) => {
@@ -74,12 +75,12 @@ export default function CheckoutForm({ cfg, rzpReady, waEnabled, deliveryDays, o
     if (!f.name.trim() || !/^[6-9]\d{9}$/.test(ph) || !/^\S+@\S+\.\S+$/.test(f.email) || !f.address.trim() || !/^\d{6}$/.test(f.pincode)) return setErr(lang === 'hi' ? 'कृपया नाम, 10 अंकों का मोबाइल, ईमेल, पता और 6 अंकों का पिनकोड सही-सही भरें।' : 'Please fill in your name, 10-digit mobile, email, address and 6-digit pincode.');
     setBusy(true);
     if (method === 'cod' && waEnabled && !verified) { // log the order first, send the code at the same time
-      const [h] = await Promise.all([jfetch('/api/checkout/create', { items: items.map((i) => ({ id: i.id, qty: i.qty })), customer: { ...f, phone: ph }, method, advance: false, code: disc.code, lang }), sendWA()]);
+      const [h] = await Promise.all([jfetch('/api/checkout/create', { items: items.map((i) => ({ id: i.id, qty: i.qty })), customer: { ...f, phone: ph }, method, advance: false, vid: visitorId(), code: disc.code, lang }), sendWA()]);
       setBusy(false);
       if (h.needWA && h.holdId) { hold.current = h.holdId; return; }
       setWa((w) => ({ ...w, open: false })); return setErr(t(h.error || 'Something went wrong.'));
     }
-    const d = await jfetch('/api/checkout/create', { items: items.map((i) => ({ id: i.id, qty: i.qty })), customer: { ...f, phone: ph }, method, advance: false, code: disc.code, lang });
+    const d = await jfetch('/api/checkout/create', { items: items.map((i) => ({ id: i.id, qty: i.qty })), customer: { ...f, phone: ph }, method, advance: false, vid: visitorId(), code: disc.code, lang });
     if (!d.ok) { setBusy(false); if (d.needWA) return sendWA(); return setErr(t(d.error || 'Something went wrong.') + (d.status ? ` (${d.status})` : '')); }
     const done = (n) => { try { sessionStorage.setItem('yg_last', JSON.stringify({ value: pr.total, n: items.length })); } catch {} clear(); r.push(pre(lang, `/checkout/success?o=${n}&due=${d.due || 0}`)); };
     if (d.cod) return done(d.orderNumber);
