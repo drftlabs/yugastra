@@ -5,16 +5,20 @@ import { updateOrder, updateOrderAddress, cancelOrder, deleteOrder } from '@/lib
 import ConfirmForm from '@/components/admin/ConfirmForm';
 import { orderLabel } from '@/lib/orderLabel';
 import { inr } from '@/lib/data';
+import { riskMap, riskLabel, REAL } from '@/lib/risk';
 import Preview from '@/components/admin/Preview';
 export default async function Order({ params }) {
   const { db } = await requireAdmin('orders'); if (!db) return <Preview />;
   const { data: o } = await db.from('orders').select('*').eq('id', params.id).maybeSingle(); if (!o) notFound();
   const act = updateOrder.bind(null, o.id); const addr = updateOrderAddress.bind(null, o.id);
   const cod = o.payment_method === 'cod';
+  const safe = (x) => String(x || '').replace(/[,()%*]/g, ' ').trim();
+  const { data: sib } = await db.from('orders').select('id,order_number,email,phone,status,created_at,total,payment_method').or(`email.eq.${safe(o.email)},phone.eq.${safe(o.phone)}`).neq('id', o.id).order('created_at', { ascending: false }).limit(20);
+  const risk = REAL(o) ? riskMap([o, ...(sib || [])]).get(o.id) : null;
   return (<><Link href="/admin/orders" className="link-arrow">← Orders</Link><h1 style={{ marginTop: 18 }}>{o.order_number} <span className={`pm ${o.payment_method === 'cod' ? 'cod' : 'pre'}`}>{o.payment_method === 'cod' ? 'COD' : 'Prepaid'}</span></h1>
-    <p style={{ margin: '-10px 0 16px' }}><span className={`pill ${o.status}`}>{orderLabel(o)}</span>{(o.status === 'pending_payment' || o.status === 'cancelled') && <small style={{ color: 'var(--muted)', marginLeft: 10 }}>Not a confirmed order (listed under Abandoned carts)</small>}</p>
+    <p style={{ margin: '-10px 0 16px' }}><span className={`pill ${o.status}`}>{orderLabel(o)}</span>{(o.status === 'pending_payment' || o.status === 'cancelled') && <small style={{ color: 'var(--muted)', marginLeft: 10 }}>Not a confirmed order (listed under Abandoned carts)</small>}{o.status === 'otp_pending' && <small style={{ color: 'var(--muted)', marginLeft: 10 }}>Not a confirmed order: the customer has not entered the WhatsApp code (valid 10 minutes). Nothing is shipped, no stock is held and no emails are sent.</small>}{risk && <span className="risk-tag" style={{ marginLeft: 10 }}>⚠ {riskLabel(risk)}</span>}</p>
     <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(320px,1fr))', gap: 20 }}>
-      <div className="box"><div className="eyebrow">Customer</div><p style={{ margin: '10px 0' }}>{o.name}<br />{o.email}<br />{o.phone}<br />{o.address}, {o.city}, {o.state} {o.pincode}</p>
+      <div className="box"><div className="eyebrow">Customer</div><p style={{ margin: '10px 0' }}>{o.name}<br />{o.email}<br />{o.phone}<br />{o.address}{o.landmark ? <><br /><b>Landmark:</b> {o.landmark}</> : ''}<br />{o.city}, {o.state} {o.pincode}</p>
         <div className="eyebrow" style={{ marginTop: 20 }}>Items</div>{(o.items || []).map((i) => <div className="row ord-row" key={i.id}><span className="ord-it">{i.image && <img src={i.image} alt="" />}<span>{i.name} × {i.qty}{i.slug && <><br /><Link href={`/products/${i.slug}`} target="_blank" className="link-arrow" style={{ fontSize: 10 }}>View product ↗</Link></>}</span></span><span>{inr(i.price * i.qty)}</span></div>)}
         <div className="row"><span>Discount {o.discount_code && `(${o.discount_code})`}</span><span>−{inr(o.discount)}</span></div><div className="row"><span>Shipping</span><span>{inr(o.shipping)}</span></div><div className="row total"><span>Total ({o.payment_method})</span><span>{inr(o.total)}</span></div>
         {o.amount_due > 0 && <div className="row"><span>Collect on delivery</span><b style={{ color: 'var(--gold)' }}>{inr(o.amount_due)}</b></div>}
@@ -24,6 +28,7 @@ export default async function Order({ params }) {
           {!cod && o.razorpay_order_id && <div className="row"><span>Razorpay order ID</span><span style={{ userSelect: 'all' }}>{o.razorpay_order_id}</span></div>}
           {o.paid_at && <div className="row"><span>Paid at</span><span>{new Date(o.paid_at).toLocaleString('en-IN')}</span></div>}
           {cod && <div className="row"><span>Status</span><span>Not paid yet · confirmed by WhatsApp code</span></div>}</div></div>
+      {(sib || []).length > 0 && <div className="box" style={risk ? { borderColor: 'rgba(255,170,90,.5)' } : undefined}><div className="eyebrow" style={risk ? { color: '#ffb066' } : undefined}>{risk ? 'Risk: other orders from this phone / email' : 'Other orders from this customer'}</div>{sib.map((x) => <Link key={x.id} href={`/admin/orders/${x.id}`} className="row ord-sib"><span><b>{x.order_number}</b> · {new Date(x.created_at).toLocaleDateString('en-IN')}<br /><small style={{ color: 'var(--muted)' }}>{x.payment_method === 'cod' ? 'COD' : 'Prepaid'} · {String(x.status).replace('_', ' ')}</small></span><span>{inr(x.total)}</span></Link>)}</div>}
       <form className="box" action={act}><div className="eyebrow">Fulfilment</div>
         <div className="field" style={{ marginTop: 12 }}><label>Status</label><select className="inp" name="status" defaultValue={o.status}>{['otp_pending', 'pending_payment', 'paid', 'processing', 'shipped', 'delivered', 'cancelled'].map((s) => <option key={s}>{s}</option>)}</select></div>
         <div className="field"><label>Courier</label><input className="inp" name="courier" defaultValue={o.courier || ''} /></div>

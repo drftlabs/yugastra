@@ -15,5 +15,7 @@ export default function Link({ href, ...r }) {
     onClick?.(e);
     try { if (!e.defaultPrevented && !e.metaKey && !e.ctrlKey && !e.shiftKey && e.button === 0 && typeof href === 'string' && href.startsWith('/')) { const d = document.documentElement; d.classList.add('nav-out'); setTimeout(() => d.classList.remove('nav-out'), 9000); } } catch {}
   };
-  return <NextLink href={pre(l, href)} onClick={go} {...rest} />;
+  // Footer-type pages are not prefetched: every prefetch of a not-yet-cached page runs a server function.
+  const quiet = typeof href === 'string' && /^\/(hi\/)?(policies|heritage|our-story|journal|contact|faq|collections$)/.test(href);
+  return <NextLink href={pre(l, href)} onClick={go} {...(quiet ? { prefetch: false } : {})} {...rest} />;
 }

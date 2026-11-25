@@ -45,18 +45,28 @@ function Tbl({ head, rows, empty = 'No data yet' }) {
 }
 export default async function Traffic({ searchParams }) {
   const { db } = await requireAdmin('analytics'); if (!db) return <Preview />;
-  const days = [1, 7, 30, 90].includes(Number(searchParams.days)) ? Number(searchParams.days) : 30;
-  const since = new Date(Date.now() - days * 864e5).toISOString();
+  const istMs = (k) => new Date(`${k}T00:00:00+05:30`).getTime();
+  const todayK = dayOf(Date.now()), sod = istMs(todayK), nowMs = Date.now() + 1;
+  const dOk = (x) => /^\d{4}-\d{2}-\d{2}$/.test(x || '');
+  const rr = ['today', 'yesterday', '7', '30', '90', 'custom'].includes(searchParams.r) ? searchParams.r : searchParams.days === '1' ? 'today' : ['7', '30', '90'].includes(searchParams.days) ? searchParams.days : '30';
+  let t0 = nowMs - 30 * 864e5, t1 = nowMs, from = todayK, to = todayK;
+  if (rr === 'today') { t0 = sod; } else if (rr === 'yesterday') { t0 = sod - 864e5; t1 = sod; } else if (rr === 'custom') {
+    from = dOk(searchParams.from) ? searchParams.from : todayK; to = dOk(searchParams.to) ? searchParams.to : from; if (to < from) [from, to] = [to, from];
+    t0 = istMs(from); t1 = Math.min(istMs(to) + 864e5, Math.max(nowMs, istMs(to) + 864e5));
+  } else t0 = nowMs - Number(rr) * 864e5;
+  const since = new Date(t0).toISOString(), until = new Date(t1).toISOString();
+  const rangeLabel = rr === 'custom' ? (from === to ? from : `${from} to ${to}`) : rr === 'today' ? 'Today' : rr === 'yesterday' ? 'Yesterday' : `Last ${rr} days`;
   const FULL = 'id,visitor,session,pid,path,ref,device,medium,campaign,city,country,landing,dur,created_at', BASE = 'id,visitor,path,ref,device,created_at';
-  let pvRes = await all(() => db.from('page_views').select(FULL).gte('created_at', since).order('id'));
-  let v2 = true; if (pvRes.error) { v2 = false; pvRes = await all(() => db.from('page_views').select(BASE).gte('created_at', since).order('id')); }
+  let pvRes = await all(() => db.from('page_views').select(FULL).gte('created_at', since).lt('created_at', until).order('id'));
+  let v2 = true; if (pvRes.error) { v2 = false; pvRes = await all(() => db.from('page_views').select(BASE).gte('created_at', since).lt('created_at', until).order('id')); }
   const [evRes, ordRes0] = await Promise.all([
-    all(() => db.from('site_events').select('name,path,visitor,created_at').in('name', ['add_to_cart', 'begin_checkout']).gte('created_at', since).order('id')),
-    all(() => db.from('orders').select('order_number,status,total,payment_method,items,created_at,city,visitor').gte('created_at', since).order('created_at')),
+    all(() => db.from('site_events').select('name,path,visitor,created_at').in('name', ['add_to_cart', 'begin_checkout']).gte('created_at', since).lt('created_at', until).order('id')),
+    all(() => db.from('orders').select('order_number,status,total,payment_method,items,created_at,city,visitor').gte('created_at', since).lt('created_at', until).order('created_at')),
   ]);
-  let ordRes = ordRes0; if (ordRes0.error) ordRes = await all(() => db.from('orders').select('order_number,status,total,payment_method,items,created_at,city').gte('created_at', since).order('created_at'));
+  let ordRes = ordRes0; if (ordRes0.error) ordRes = await all(() => db.from('orders').select('order_number,status,total,payment_method,items,created_at,city').gte('created_at', since).lt('created_at', until).order('created_at'));
   const pv = pvRes.data, evs = evRes.error ? [] : evRes.data, noEv = !!evRes.error || !v2;
-  const orders = ordRes.data.filter((o) => o.status !== 'cancelled');
+  const allOrd = ordRes.data;
+  const orders = allOrd.filter((o) => o.status !== 'cancelled');
   const bought = orders.filter((o) => !NOT_BOUGHT.includes(o.status));
   const rev = bought.reduce((a, o) => a + Number(o.total || 0), 0);
   const noPv = !!pvRes.error && !pv.length;
@@ -83,11 +93,24 @@ export default async function Traffic({ searchParams }) {
   const cartV = new Set(cartEv.map((e) => e.visitor));
   const chkV = new Set([...chkEv.map((e) => e.visitor), ...pv.filter((p) => norm(p.path) === '/checkout').map((p) => p.visitor)]);
   const prepaid = bought.filter((o) => o.payment_method === 'online'), cod = bought.filter((o) => o.payment_method === 'cod');
+  const codReq = allOrd.filter((o) => o.payment_method === 'cod'), codConf = codReq.filter((o) => !NOT_BOUGHT.includes(o.status)), codUnconf = codReq.filter((o) => o.status === 'otp_pending');
+  const onl = allOrd.filter((o) => o.payment_method !== 'cod'), onlPaid = onl.filter((o) => !NOT_BOUGHT.includes(o.status));
+  const attempted = orders.length;
   const funnel = [
-    ['Visitors', visitors.size, 'visitors'], ['Viewed a watch', prodV.size, 'visitors'], ['Added to cart', cartV.size, 'visitors'], ['Reached checkout', chkV.size, 'visitors'],
-    ['Order placed (incl. unconfirmed)', orders.length, 'orders'], ['Purchased (paid or COD confirmed)', bought.length, 'orders'],
+    { l: 'Total page views', n: pv.length, u: 'views', k: 'info' },
+    { l: 'Unique visitors', n: visitors.size, u: 'visitors', k: 'step' },
+    { l: 'Viewed a watch', n: prodV.size, u: 'visitors', k: 'step' },
+    { l: 'Added to cart', n: cartV.size, u: 'visitors', k: 'step' },
+    { l: 'Reached checkout', n: chkV.size, u: 'visitors', k: 'step' },
+    { l: 'Order attempted: WhatsApp code or online payment', n: attempted, u: 'orders', k: 'step' },
+    { l: 'WhatsApp code requested (COD)', n: codReq.length, u: 'orders', k: 'sub' },
+    { l: 'Not confirmed: WhatsApp code not entered', n: codUnconf.length, u: 'drop-off', k: 'sub drop' },
+    { l: 'COD confirmed on WhatsApp', n: codConf.length, u: 'orders', k: 'sub ok' },
+    { l: 'Online payment started', n: onl.length, u: 'orders', k: 'sub' },
+    { l: 'Online payment not completed', n: onl.length - onlPaid.length, u: 'drop-off', k: 'sub drop' },
+    { l: 'Purchases (WhatsApp confirmed + paid online)', n: bought.length, u: 'orders', k: 'step' },
   ];
-  const fmax = Math.max(1, funnel[0][1]);
+  const fmax = Math.max(1, visitors.size, pv.length);
 
   // payment types
   const pmRows = new Map(); orders.forEach((o) => { const k = o.payment_method || 'other'; const r = pmRows.get(k) || { p: 0, b: 0, rev: 0 }; r.p++; if (!NOT_BOUGHT.includes(o.status)) { r.b++; r.rev += Number(o.total || 0); } pmRows.set(k, r); });
@@ -95,8 +118,8 @@ export default async function Traffic({ searchParams }) {
   // hour / day
   const hrV = Array.from({ length: 24 }, () => new Set()), hrP = Array(24).fill(0);
   pv.forEach((p) => { const h = hourOf(p.created_at); hrP[h]++; hrV[h].add(p.visitor); });
-  const nDays = Math.max(1, days === 1 ? 1 : Math.min(days, 90));
-  const dkeys = Array.from({ length: nDays }, (_, i) => dayOf(Date.now() - (nDays - 1 - i) * 864e5));
+  const dkeys = []; for (let t = t0; t < t1 && dkeys.length < 92; t += 864e5) { const k = dayOf(t); if (!dkeys.includes(k)) dkeys.push(k); }
+  { const lk = dayOf(t1 - 1); if (!dkeys.includes(lk) && dkeys.length < 93) dkeys.push(lk); }
   const dV = new Map(dkeys.map((k) => [k, new Set()])), dP = new Map(dkeys.map((k) => [k, 0])), dO = new Map(dkeys.map((k) => [k, 0]));
   pv.forEach((p) => { const k = dayOf(p.created_at); if (dP.has(k)) { dP.set(k, dP.get(k) + 1); dV.get(k).add(p.visitor); } });
   bought.forEach((o) => { const k = dayOf(o.created_at); if (dO.has(k)) dO.set(k, dO.get(k) + 1); });
@@ -134,7 +157,8 @@ export default async function Traffic({ searchParams }) {
   return (<>
     <h1>Analytics</h1>
     <div className="tabs"><Link href="/admin/analytics">Overview</Link><Link className="on" href="/admin/analytics/traffic">Traffic &amp; funnel</Link></div>
-    <div className="tabs">{[[1, 'Today'], [7, 'Last 7 days'], [30, 'Last 30 days'], [90, 'Last 90 days']].map(([d, l]) => <Link key={d} className={days === d ? 'on' : ''} href={`/admin/analytics/traffic?days=${d}`}>{l}</Link>)}</div>
+    <div className="tabs">{[['today', 'Today'], ['yesterday', 'Yesterday'], ['7', 'Last 7 days'], ['30', 'Last 30 days'], ['90', 'Last 90 days']].map(([d, l]) => <Link key={d} className={rr === d ? 'on' : ''} href={`/admin/analytics/traffic?r=${d}`}>{l}</Link>)}</div>
+    <form className="an-range" action="/admin/analytics/traffic"><input type="hidden" name="r" value="custom" /><label>From <input className="inp" type="date" name="from" defaultValue={from} max={todayK} /></label><label>To <input className="inp" type="date" name="to" defaultValue={to} max={todayK} /></label><button className="btn sm">Apply dates</button><span className={rr === 'custom' ? 'an-on' : ''}>Showing: <b>{rangeLabel}</b></span></form>
     {noPv && <div className="box" style={{ marginBottom: 20 }}><b>Visitor tracking is not set up yet.</b> <span style={{ color: 'var(--muted)' }}>Run <code>supabase/analytics.sql</code> then <code>supabase/analytics-v2.sql</code> in the Supabase SQL editor.</span></div>}
     {!noPv && noEv && <div className="box" style={{ marginBottom: 20 }}><b>Sessions, time on site, cities and the cart / checkout funnel need one more step.</b> <span style={{ color: 'var(--muted)' }}>Run <code>supabase/analytics-v2.sql</code> once. They fill in from then on.</span></div>}
     <div className="cards">
@@ -144,7 +168,8 @@ export default async function Traffic({ searchParams }) {
       <S l="Avg. time on site" v={fmtT(avgTime)} s="per session, visible time" />
       <S l="Added to cart" v={cartV.size} s={`${cartEv.length} adds · ${pct(cartV.size, visitors.size)} of visitors`} />
       <S l="Reached checkout" v={chkV.size} s={`${pct(chkV.size, cartV.size)} of cart adders`} />
-      <S l="Orders placed" v={orders.length} s={`${orders.length - bought.length} not completed`} />
+      <S l="Orders started" v={orders.length} s={`${orders.length - bought.length} not completed`} />
+      <S l="WhatsApp codes requested" v={codReq.length} s={`${codUnconf.length} not confirmed · ${codConf.length} confirmed`} />
       <S l="Purchases" v={bought.length} s={`${inr(rev)} · avg ${inr(bought.length ? Math.round(rev / bought.length) : 0)}`} />
       <S l="Prepaid purchases" v={prepaid.length} s={`${pct(prepaid.length, bought.length)} of purchases · ${inr(prepaid.reduce((a, o) => a + Number(o.total || 0), 0))}`} />
       <S l="COD purchases" v={cod.length} s={`${pct(cod.length, bought.length)} of purchases`} />
@@ -153,13 +178,13 @@ export default async function Traffic({ searchParams }) {
     </div>
 
     <div className="box" style={{ marginBottom: 14 }}>
-      <div className="eyebrow">Funnel</div>
-      <div className="fn">{funnel.map(([l, n, u], i) => (
-        <div key={l} className="fn-r"><div className="fn-l">{l}<small>{u}</small></div>
-          <div className="fn-t"><i style={{ width: `${Math.max(1.5, (n / fmax) * 100)}%` }} /></div>
-          <div className="fn-n"><b>{n}</b><small>{i ? `${pct(n, funnel[i - 1][1])} of previous · −${Math.max(0, funnel[i - 1][1] - n)}` : '100%'}</small></div></div>))}
+      <div className="eyebrow">Funnel · {rangeLabel}</div>
+      <div className="fn">{(() => { let prev = null; return funnel.map((r) => { const step = r.k === 'step'; const pr = step ? prev : null; if (step) prev = r.n; return (
+        <div key={r.l} className={`fn-r ${r.k}`}><div className="fn-l">{r.l}<small>{r.u}</small></div>
+          <div className="fn-t"><i style={{ width: `${Math.max(1.5, (r.n / fmax) * 100)}%` }} /></div>
+          <div className="fn-n"><b>{r.n}</b><small>{step && pr != null ? `${pct(r.n, pr)} of previous · −${Math.max(0, pr - r.n)}` : r.k === 'info' ? 'all visits' : r.k.includes('drop') ? 'lost here' : ''}</small></div></div>); }); })()}
       </div>
-      <p style={{ color: 'var(--muted)', fontSize: 12, marginTop: 10 }}>The first four steps count unique visitors; the last two count orders. “Order placed” includes COD orders still waiting for the WhatsApp code and online orders where payment was not completed.</p>
+      <p style={{ color: 'var(--muted)', fontSize: 12, marginTop: 10 }}>Visitors to checkout count unique people; the order steps count orders. “WhatsApp code requested” is every COD order where the customer tapped to confirm, including those who never entered the code. Those stay out of the Orders list until confirmed.</p>
     </div>
 
     <div className="an-grid">
