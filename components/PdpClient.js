@@ -57,18 +57,29 @@ export default function PdpClient({ collections = [], reviews = [], items, start
   const byslug = Object.fromEntries(catalog.map((c) => [c.slug, c]));
   const related = [...catalog.filter((c) => c.slug !== p.slug && c.col === col?.name), ...catalog.filter((c) => c.slug !== p.slug && c.col !== col?.name)].slice(0, 8);
   const recentItems = recent.map((s) => byslug[s]).filter(Boolean).slice(0, 8);
-  const cases = useMemo(() => [...new Set(items.map((x) => x.case_color).filter(Boolean))], [items]);
-  const straps = useMemo(() => [...new Set(items.map((x) => x.strap_color).filter(Boolean))], [items]);
+  // Shape: rectangular and round watches of one realm sit in the same list. The colour pickers only show the current shape.
+  const shapeOf = (x) => (x?.shape === 'round' ? 'round' : 'rect');
+  const shapes = useMemo(() => [...new Set(items.map(shapeOf))].sort(), [items]);
+  const pool = useMemo(() => items.filter((x) => shapeOf(x) === shapeOf(p)), [items, p.slug]);
+  const cases = useMemo(() => [...new Set(pool.map((x) => x.case_color).filter(Boolean))], [pool]);
+  const straps = useMemo(() => [...new Set(pool.map((x) => x.strap_color).filter(Boolean))], [pool]);
   const dialOf = (x) => x?.specs?.Dial || '';
-  const dials = useMemo(() => [...new Set(items.map(dialOf).filter(Boolean))], [items]);
-  const has = (c, s) => items.find((x) => x.case_color === c && x.strap_color === s && (!dialOf(p) || dialOf(x) === dialOf(p))) || items.find((x) => x.case_color === c && x.strap_color === s);
+  const dials = useMemo(() => [...new Set(pool.map(dialOf).filter(Boolean))], [pool]);
+  const nc = (x) => String(x || '').toLowerCase().replace('matte ', '');
+  // Same watch in the other shape: the linked watch, else same case + strap, else same case, else black on black.
+  const goShape = (sh) => {
+    const to = items.filter((x) => shapeOf(x) === sh);
+    const m = to.find((x) => x.slug === p.shape_link) || to.find((x) => nc(x.case_color) === nc(p.case_color) && nc(x.strap_color) === nc(p.strap_color)) || to.find((x) => nc(x.case_color) === nc(p.case_color)) || to.find((x) => nc(x.case_color) === 'black' && nc(x.strap_color) === 'black') || to[0];
+    if (m) { setSlug(m.slug); try { history.replaceState(null, '', pre(lang, `/products/${m.slug}`)); document.title = m.seo_title || m.name; } catch {} }
+  };
+  const has = (c, s) => pool.find((x) => x.case_color === c && x.strap_color === s && (!dialOf(p) || dialOf(x) === dialOf(p))) || pool.find((x) => x.case_color === c && x.strap_color === s);
   // Change one of case / strap / dial and keep the other two whenever such a watch exists.
   const pick = (ch) => {
     const want = { c: ch.c ?? p.case_color, s: ch.s ?? p.strap_color, d: ch.d ?? dialOf(p) };
     const key = ch.c != null ? 'c' : ch.s != null ? 's' : 'd';
     const fit = (x) => (key === 'c' ? x.case_color === want.c : key === 's' ? x.strap_color === want.s : dialOf(x) === want.d);
     const score = (x) => (x.case_color === want.c) + (x.strap_color === want.s) + (dialOf(x) === want.d);
-    const m = items.filter(fit).sort((a, b) => score(b) - score(a))[0];
+    const m = pool.filter(fit).sort((a, b) => score(b) - score(a))[0];
     if (m) { setSlug(m.slug); try { history.replaceState(null, '', pre(lang, `/products/${m.slug}`)); document.title = m.seo_title || m.name; } catch {} }
   };
   const save = p.compare_price && p.compare_price > p.price ? Math.round((1 - p.price / p.compare_price) * 100) : 0;
@@ -92,6 +103,9 @@ const short = (col?.name && p.name.toUpperCase().startsWith(col.name.toUpperCase
           {eyebrow && <div className="eyebrow">{eyebrow}</div>}
           <h1>{p.name}</h1><div className="serif ptag">{p.tagline}</div>
           <div className="pw"><div className="wm" aria-hidden="true"><span className="w1">{lang === 'hi' ? 'युग' : 'YUG'}</span><span className="w2">{lang === 'hi' ? 'अस्त्र' : 'ASTRA'}</span></div><div className="price-row"><div className="price big">{inr(p.price)}{p.compare_price ? <s>{inr(p.compare_price)}</s> : null}{save ? <span className="save">{save}% {t('off')}</span> : null}</div></div><p className="desc">{p.description}</p></div>
+          {shapes.length > 1 && (<>
+            <span className="label-sm">{t('Shape')} · {t(shapeOf(p) === 'round' ? 'Round' : 'Rectangular')}</span>
+            <div className="shp-row">{shapes.map((sh) => <button key={sh} type="button" className={`shp ${sh === shapeOf(p) ? 'on' : ''}`} onClick={() => sh !== shapeOf(p) && goShape(sh)} aria-pressed={sh === shapeOf(p)}><i className={`shp-ic ${sh}`} />{t(sh === 'round' ? 'Round' : 'Rectangular')}</button>)}</div></>)}
           {cases.length > 1 && (<>
             <span className="label-sm">{t('Case')} · {cn(p.case_color)}</span>
             <div className="swrow">{cases.map((c) => (
