@@ -1,3 +1,4 @@
+export const dynamic = 'force-dynamic';
 import { getProducts, getCollections } from '@/lib/data';
 export default async function sitemap() {
   const base = process.env.NEXT_PUBLIC_SITE_URL || 'https://yugastra.com';
