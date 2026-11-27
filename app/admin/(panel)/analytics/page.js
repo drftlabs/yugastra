@@ -24,7 +24,7 @@ export default async function Analytics({ searchParams }) {
     db.from('page_views').select('visitor,path,ref,device,created_at').gte('created_at', since).limit(50000),
   ]);
   const pv = pvRes.data || []; const noPv = !!pvRes.error;
-  const good = (ordAll || []).filter((o) => o.status !== 'pending_payment' && o.status !== 'cancelled');
+  const good = (ordAll || []).filter((o) => !['pending_payment', 'cancelled', 'otp_pending'].includes(o.status));
   const ord = good.filter((o) => o.created_at >= since);
   const rev = ord.reduce((a, o) => a + Number(o.total), 0);
   // customers & repeat rate (lifetime)

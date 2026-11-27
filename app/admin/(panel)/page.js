@@ -7,7 +7,7 @@ export default async function Dash() {
   let s = { orders: 0, revenue: 0, pending: 0, today: 0 }, low = [], recent = [];
   if (db) {
     const { data: o } = await db.from('orders').select('order_number,status,total,name,created_at,payment_method').order('created_at', { ascending: false }).limit(500);
-    const paid = (o || []).filter((x) => x.status !== 'pending_payment' && x.status !== 'cancelled');
+    const paid = (o || []).filter((x) => !['pending_payment', 'cancelled', 'otp_pending'].includes(x.status));
     const day = new Date().toDateString();
     s = { orders: paid.length, revenue: paid.reduce((a, x) => a + Number(x.total), 0), pending: paid.filter((x) => x.status === 'paid' || x.status === 'processing').length, today: paid.filter((x) => new Date(x.created_at).toDateString() === day).length };
     recent = paid.slice(0, 8);

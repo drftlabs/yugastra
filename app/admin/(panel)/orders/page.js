@@ -6,7 +6,7 @@ import { riskMap, riskLabel } from '@/lib/risk';
 import RowClick from '@/components/admin/RowClick';
 import Preview from '@/components/admin/Preview';
 const ST = ['all', 'paid', 'processing', 'shipped', 'delivered', 'risk', 'otp_pending', 'pending_payment'];
-const TAB = { otp_pending: 'unconfirmed (WhatsApp)', pending_payment: 'payment not completed', risk: 'risk (repeat phone / email)' };
+const TAB = { otp_pending: 'WhatsApp not confirmed', pending_payment: 'payment not completed', risk: 'risk (repeat phone / email)' };
 const HIDE = '(pending_payment,cancelled,otp_pending)';
 export default async function Orders({ searchParams }) {
   const { db } = await requireAdmin('orders'); if (!db) return <Preview />;
@@ -19,7 +19,7 @@ export default async function Orders({ searchParams }) {
   else if (st === 'all') { if (!qs) q = q.not('status', 'in', HIDE); } else q = q.eq('status', st);
   const { data: rows } = await q;
   const href = (s) => `/admin/orders?status=${s}${qs ? `&q=${encodeURIComponent(qs)}` : ''}`;
-  return (<><RowClick /><h1>Orders</h1><p style={{ color: 'var(--muted)', margin: '-10px 0 16px', fontSize: 13 }}>Only confirmed orders are listed here. COD orders whose WhatsApp code was not entered are under “unconfirmed”, and unpaid online orders under “payment not completed”. Nothing is shipped or stock-held for those.</p>
+  return (<><RowClick /><h1>Orders</h1><p style={{ color: 'var(--muted)', margin: '-10px 0 16px', fontSize: 13 }}>Only confirmed orders are listed and counted. COD requests whose WhatsApp code was not entered are not orders; they are kept under “WhatsApp not confirmed”, and unpaid online orders under “payment not completed”. Nothing is shipped or stock-held for those.</p>
     <form className="ord-search" action="/admin/orders"><input type="hidden" name="status" value={st} /><input className="inp" name="q" defaultValue={qs} placeholder="Search name, phone, email or order number" /><button className="btn sm">Search</button>{qs && <Link className="btn sm" href={`/admin/orders?status=${st}`}>Clear</Link>}</form>
     <div className="tabs">{ST.map((s) => <Link key={s} className={st === s ? 'on' : ''} href={href(s)}>{TAB[s] || s}{s === 'risk' && risk.size ? ` (${risk.size})` : ''}</Link>)}<a href="/admin/orders/export" className="btn sm" style={{ marginLeft: 'auto' }}>Export CSV</a></div>
     <div className="ord-wrap"><table className="tbl ord"><thead><tr><th>Order</th><th>Date</th><th>Customer</th><th>Method</th><th>Status</th><th>Total</th><th>COD due</th><th /></tr></thead>
