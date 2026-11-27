@@ -1,13 +1,12 @@
-import { Outfit, Noto_Sans_Devanagari, Cormorant_Garamond } from 'next/font/google';
 import './globals.css';
 import ShopProvider from '@/components/ShopProvider';
 import { LangProvider } from '@/components/LangCtx';
 import { HindiSuggest } from '@/components/LangSwitch';
 import { headers } from 'next/headers';
 
-const outfit = Outfit({ subsets: ['latin'], variable: '--font-outfit', weight: ['200', '300', '400', '500', '700'] });
-const deva = Noto_Sans_Devanagari({ subsets: ['devanagari'], variable: '--font-deva', weight: ['300', '400', '500'] });
-const serif = Cormorant_Garamond({ subsets: ['latin'], variable: '--font-serif', weight: ['400', '500'], style: ['normal', 'italic'] });
+const outfit = {variable:''};
+const deva = {variable:''};
+const serif = {variable:''};
 
 export const metadata = {
   metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || 'https://yugastra.com'),
@@ -33,3 +32,6 @@ export default function Root({ children }) {
     </html>
   );
 }
+
+// Pages read live data and the visitor's language, so none can be built ahead of time. This keeps a slow database from failing the build.
+export const dynamic = 'force-dynamic';
