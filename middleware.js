@@ -24,7 +24,12 @@ export async function middleware(req) {
       setAll: (list) => list.forEach(({ name, value, options }) => res.cookies.set(name, value, options)),
     },
   });
-  const { data: { user } } = await supabase.auth.getUser();
+  // Never let a slow database hold the whole request: after 3 s carry on and let the page itself check the login.
+  const user = await Promise.race([
+    supabase.auth.getUser().then((r) => r?.data?.user ?? null).catch(() => undefined),
+    new Promise((r) => setTimeout(() => r(undefined), 3000)),
+  ]);
+  if (user === undefined) return res;
   const pre = hi ? '/hi' : '';
   if (p.startsWith('/account') && !p.startsWith('/account/login') && !user)
     return NextResponse.redirect(new URL(`${pre}/account/login`, req.url));
